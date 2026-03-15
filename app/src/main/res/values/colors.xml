@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="primary_blue">#1565C0</color>
+    <color name="primary_dark_blue">#0D47A1</color>
+    <color name="primary_light_blue">#1976D2</color>
+    <color name="accent_blue">#B3E5FC</color>
+    <color name="teal">#00ACC1</color>
+    <color name="present_green">#43A047</color>
+    <color name="absent_red">#E53935</color>
+    <color name="warning_amber">#F57F17</color>
+    <color name="hold_back_orange">#E65100</color>
+    <color name="background_light">#F0F4F8</color>
+    <color name="card_surface">#FFFFFF</color>
+    <color name="admin_dark_bg">#0F1923</color>
+    <color name="gray_body">#616161</color>
+    <color name="gray_caption">#9E9E9E</color>
+    <color name="row_tint_blue">#E3F2FD</color>
+    <color name="green_badge_bg">#E8F5E9</color>
+    <color name="red_badge_bg">#FFEBEE</color>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="error_red">#D32F2F</color>
+</resources>
