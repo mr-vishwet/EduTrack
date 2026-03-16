@@ -131,8 +131,8 @@ public class TeacherPerformanceActivity extends AppCompatActivity {
                     int sessions = teacherSessions.getOrDefault(name, 0);
                     List<String> subjects = teacherSubjects.get(name);
 
-                    String subtitle = expertise + " \u00B7 " + classCount + " Assigned Class(es)";
-                    reportItemList.add(new ReportItem(name, subtitle, sessions + " Sessions Marking", subjects));
+                    String subtitle = sessions + " Sessions";
+                    reportItemList.add(new ReportItem(name, "", subtitle, subjects));
                     
                     // Add to global export
                     globalExportData.add(new String[]{"---", "---", "---", "---", "---"});

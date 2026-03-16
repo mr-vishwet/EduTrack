@@ -1,0 +1,41 @@
+EduTrack - Application Login Credentials
+==========================================
+
+ADMIN PORTAL
+------------------------------------------
+Role: Admin
+Login URL: Choose 'Admin' on Role Selection
+Email: admin@edutrack.com
+Password: password123
+
+TEACHER PORTAL
+------------------------------------------
+Role: Teacher
+Login URL: Choose 'Teacher' on Role Selection
+(Total 30 teachers available)
+
+Sample 3 (Subject Specialist):
+Email: ashwini.patil@edutrack.com
+Password: password123
+
+PARENT / STUDENT PORTAL
+------------------------------------------
+Role: Parent
+Login URL: Choose 'Parent' on Role Selection
+
+Pattern: ROLL_NO_{Number}_{ClassID}
+Example 1 (8th A):
+Roll Number / Login ID: roll_no_1_8a
+Password: password123
+
+Example 2 (9th B):
+Roll Number / Login ID: roll_no_1_9b
+Password: password123
+
+Example 3 (10th A):
+Roll Number / Login ID: roll_no_1_10a
+Password: password123
+
+------------------------------------------
+Note: All passwords for seeded data are 'password123' by default.
+For Parents, the Login ID is case-insensitive.
