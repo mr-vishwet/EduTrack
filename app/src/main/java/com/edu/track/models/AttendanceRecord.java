@@ -6,6 +6,8 @@ public class AttendanceRecord {
     private String date;
     private String standard;
     private String division;
+    private String subject;
+    private String teacherId;
     private Map<String, Boolean> statuses;
     private com.google.firebase.Timestamp timestamp;
 
@@ -19,6 +21,12 @@ public class AttendanceRecord {
 
     public String getDivision() { return division; }
     public void setDivision(String division) { this.division = division; }
+
+    public String getSubject() { return subject; }
+    public void setSubject(String subject) { this.subject = subject; }
+
+    public String getTeacherId() { return teacherId; }
+    public void setTeacherId(String teacherId) { this.teacherId = teacherId; }
 
     public Map<String, Boolean> getStatuses() { return statuses; }
     public void setStatuses(Map<String, Boolean> statuses) { this.statuses = statuses; }

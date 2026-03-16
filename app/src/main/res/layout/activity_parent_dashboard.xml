@@ -102,18 +102,6 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <com.google.android.material.bottomnavigation.BottomNavigationView
-        android:id="@+id/bottom_navigation"
-        android:layout_width="match_parent"
-        android:layout_height="64dp"
-        android:background="@color/white"
-        app:elevation="8dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:menu="@menu/nav_menu_parent"
-        app:itemIconTint="#2E7D32"
-        app:itemTextColor="#2E7D32"
-        app:labelVisibilityMode="labeled" />
-
     <!-- Content Area -->
     <FrameLayout
         android:id="@+id/fragment_container"
@@ -135,7 +123,5 @@
         app:itemTextColor="@color/nav_item_color_state"
         app:itemRippleColor="@color/row_tint_blue"
         app:labelVisibilityMode="labeled" />
-
-</androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

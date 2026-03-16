@@ -56,6 +56,17 @@
             app:layout_constraintTop_toBottomOf="@id/tv_greeting" />
 
         <ImageView
+            android:id="@+id/btn_notifications"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginEnd="8dp"
+            android:padding="4dp"
+            android:src="@drawable/ic_notifications"
+            app:layout_constraintBottom_toBottomOf="@id/tv_avatar"
+            app:layout_constraintEnd_toStartOf="@id/btn_logout"
+            app:layout_constraintTop_toTopOf="@id/tv_avatar" />
+
+        <ImageView
             android:id="@+id/btn_logout"
             android:layout_width="32dp"
             android:layout_height="32dp"
@@ -66,18 +77,6 @@
             app:layout_constraintTop_toTopOf="@id/tv_avatar" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <com.google.android.material.bottomnavigation.BottomNavigationView
-        android:id="@+id/bottom_navigation"
-        android:layout_width="match_parent"
-        android:layout_height="64dp"
-        android:background="@color/white"
-        app:elevation="8dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:menu="@menu/nav_menu_teacher"
-        app:itemIconTint="@color/teal"
-        app:itemTextColor="@color/teal"
-        app:labelVisibilityMode="labeled" />
 
     <!-- Content Area -->
     <FrameLayout
@@ -100,7 +99,5 @@
         app:itemTextColor="@color/nav_item_color_state"
         app:itemRippleColor="@color/row_tint_blue"
         app:labelVisibilityMode="labeled" />
-
-</androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

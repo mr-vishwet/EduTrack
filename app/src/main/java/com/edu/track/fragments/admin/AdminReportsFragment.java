@@ -12,6 +12,7 @@ import androidx.fragment.app.Fragment;
 
 import com.edu.track.R;
 import com.edu.track.activities.admin.AdminReportsActivity;
+import com.edu.track.activities.admin.TeacherPerformanceActivity;
 
 public class AdminReportsFragment extends Fragment {
 
@@ -20,11 +21,21 @@ public class AdminReportsFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_admin_reports, container, false);
 
-        view.findViewById(R.id.btn_academic_reports).setOnClickListener(v ->
-                startActivity(new Intent(requireContext(), AdminReportsActivity.class)));
+        // Academic / Attendance Reports
+        View btnAcademic = view.findViewById(R.id.btn_academic_reports);
+        if (btnAcademic != null) {
+            btnAcademic.setOnClickListener(v ->
+                    startActivity(new Intent(requireContext(), AdminReportsActivity.class)));
+        }
 
-        // Other report types can be added here
-        
+        // Faculty / Teacher Performance Reports
+        View btnFaculty = view.findViewById(R.id.btn_teacher_performance);
+        if (btnFaculty != null) {
+            btnFaculty.setOnClickListener(v ->
+                    startActivity(new Intent(requireContext(), TeacherPerformanceActivity.class)));
+        }
+
         return view;
     }
 }
+

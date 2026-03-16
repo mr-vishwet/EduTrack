@@ -31,6 +31,7 @@
                 android:textStyle="bold" />
 
             <TextView
+                android:id="@+id/tv_view_all_classes"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="View All"
@@ -58,24 +59,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal">
-
-                    <!-- Placeholder Card 1 -->
-                    <com.google.android.material.card.MaterialCardView
-                        android:layout_width="120dp"
-                        android:layout_height="80dp"
-                        android:layout_marginEnd="16dp"
-                        app:cardBackgroundColor="#DDDDDD"
-                        app:cardCornerRadius="12dp"
-                        app:cardElevation="0dp" />
-
-                    <!-- Placeholder Card 2 -->
-                    <com.google.android.material.card.MaterialCardView
-                        android:layout_width="120dp"
-                        android:layout_height="80dp"
-                        android:layout_marginEnd="16dp"
-                        app:cardBackgroundColor="#DDDDDD"
-                        app:cardCornerRadius="12dp"
-                        app:cardElevation="0dp" />
+                    <!-- Classes will be inflated here dynamically -->
                 </LinearLayout>
             </HorizontalScrollView>
         </com.facebook.shimmer.ShimmerFrameLayout>
@@ -179,107 +163,14 @@
             android:textSize="16sp"
             android:textStyle="bold" />
 
-        <!-- Activity 1 -->
-        <com.google.android.material.card.MaterialCardView
+        <LinearLayout
+            android:id="@+id/ll_recent_activity_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="16dp"
-            android:layout_marginBottom="12dp"
-            app:cardBackgroundColor="@color/white"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="1dp"
-            app:strokeColor="#E2E8F0"
-            app:strokeWidth="1dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:padding="16dp"
-                android:orientation="horizontal"
-                android:gravity="center_vertical">
-                
-                <View
-                    android:layout_width="12dp"
-                    android:layout_height="12dp"
-                    android:background="@drawable/bg_circle_teal"
-                    android:backgroundTint="#FFB74D"/>
-                    
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical"
-                    android:layout_marginStart="16dp">
-                    
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="8th A · Mathematics"
-                        android:textColor="@color/black"
-                        android:textStyle="bold"
-                        android:textSize="14sp" />
-                        
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="14 Mar | 42/42 Present"
-                        android:textColor="@color/gray_caption"
-                        android:textSize="12sp"
-                        android:layout_marginTop="2dp" />
-                </LinearLayout>
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
-
-        <!-- Activity 2 -->
-        <com.google.android.material.card.MaterialCardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="16dp"
-            android:layout_marginBottom="12dp"
-            app:cardBackgroundColor="@color/white"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="1dp"
-            app:strokeColor="#E2E8F0"
-            app:strokeWidth="1dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:padding="16dp"
-                android:orientation="horizontal"
-                android:gravity="center_vertical">
-                
-                <View
-                    android:layout_width="12dp"
-                    android:layout_height="12dp"
-                    android:background="@drawable/bg_circle_teal"
-                    android:backgroundTint="#BA68C8"/>
-                    
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical"
-                    android:layout_marginStart="16dp">
-                    
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="9th B · Physics"
-                        android:textColor="@color/black"
-                        android:textStyle="bold"
-                        android:textSize="14sp" />
-                        
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="14 Mar | 35/38 Present"
-                        android:textColor="@color/gray_caption"
-                        android:textSize="12sp"
-                        android:layout_marginTop="2dp" />
-                </LinearLayout>
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
+            android:orientation="vertical">
+            <!-- Recent activities will be inflated here -->
+        </LinearLayout>
+>
 
     </LinearLayout>
 </androidx.core.widget.NestedScrollView>

@@ -77,9 +77,16 @@ public class AddEditClassActivity extends AppCompatActivity {
         db.collection("classes").document(classId)
                 .set(classMap, com.google.firebase.firestore.SetOptions.merge())
                 .addOnSuccessListener(aVoid -> {
-                    Toast.makeText(this, "Class saved", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, isEditMode ? "Class updated" : "Class created! Add students now.", Toast.LENGTH_SHORT).show();
+                    if (!isEditMode) {
+                        // Navigate straight to ManageStudentsActivity for this new class
+                        android.content.Intent intent = new android.content.Intent(this, ManageStudentsActivity.class);
+                        intent.putExtra("standard", std);
+                        intent.putExtra("division", div);
+                        startActivity(intent);
+                    }
                     finish();
                 })
-                .addOnFailureListener(e -> Toast.makeText(this, "Failed to save", Toast.LENGTH_SHORT).show());
+                .addOnFailureListener(e -> Toast.makeText(this, "Failed to save: " + e.getMessage(), Toast.LENGTH_SHORT).show());
     }
 }

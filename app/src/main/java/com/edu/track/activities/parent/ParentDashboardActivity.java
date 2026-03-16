@@ -12,6 +12,7 @@ import androidx.fragment.app.FragmentTransaction;
 
 import com.edu.track.R;
 import com.edu.track.activities.LoginActivity;
+import com.edu.track.activities.SplashActivity;
 import com.edu.track.fragments.parent.ParentHomeFragment;
 import com.edu.track.utils.FirebaseSource;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -53,14 +54,15 @@ public class ParentDashboardActivity extends AppCompatActivity {
                 fragment = new ParentHomeFragment();
                 tag = "HOME";
             } else if (itemId == R.id.nav_parent_performance) {
-                // Performance fragment
-                return true;
+                // Launch performance activity directly
+                startActivity(new Intent(this, ChildAttendanceDetailActivity.class));
+                return false;
             } else if (itemId == R.id.nav_parent_notices) {
                 startActivity(new Intent(this, com.edu.track.activities.AnnouncementsFeedActivity.class));
                 return false;
             } else if (itemId == R.id.nav_parent_profile) {
-                // Profile fragment
-                return true;
+                fragment = new com.edu.track.fragments.parent.ParentProfileFragment();
+                tag = "PROFILE";
             }
 
             if (fragment != null) {
@@ -82,20 +84,21 @@ public class ParentDashboardActivity extends AppCompatActivity {
         FirebaseUser user = FirebaseSource.getInstance().getAuth().getCurrentUser();
         if (user != null) {
             FirebaseSource.getInstance().getParentsRef().document(user.getUid())
-                .addSnapshotListener((value, error) -> {
-                    if (value != null && value.exists()) {
-                        String parentName = value.getString("name");
-                        if (tvSubtitle != null && parentName != null) {
-                            tvSubtitle.setText("Welcome, " + parentName);
+                    .addSnapshotListener((value, error) -> {
+                        if (value != null && value.exists()) {
+                            String parentName = value.getString("name");
+                            if (tvSubtitle != null && parentName != null) {
+                                tvSubtitle.setText("Welcome, " + parentName);
+                            }
                         }
-                    }
-                });
+                    });
         }
     }
 
     private void setupClickListeners() {
         ImageView btnLogout = findViewById(R.id.btn_logout);
-        if (btnLogout != null) btnLogout.setOnClickListener(v -> logout());
+        if (btnLogout != null)
+            btnLogout.setOnClickListener(v -> logout());
 
         View btnNotifications = findViewById(R.id.btn_notifications);
         if (btnNotifications != null) {
@@ -103,11 +106,21 @@ public class ParentDashboardActivity extends AppCompatActivity {
                 startActivity(new Intent(this, com.edu.track.activities.AnnouncementsFeedActivity.class));
             });
         }
+
+        View flAvatar = findViewById(R.id.fl_avatar);
+        if (flAvatar != null) {
+            flAvatar.setOnClickListener(v -> {
+                if (bottomNav != null) {
+                    bottomNav.setSelectedItemId(R.id.nav_parent_profile);
+                }
+            });
+        }
     }
 
     private void logout() {
         FirebaseSource.getInstance().getAuth().signOut();
-        Intent intent = new Intent(this, LoginActivity.class);
+        getSharedPreferences("EduTrackPrefs", MODE_PRIVATE).edit().clear().apply();
+        Intent intent = new Intent(this, SplashActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
         finish();

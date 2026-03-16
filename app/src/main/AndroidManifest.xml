@@ -4,6 +4,9 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" tools:ignore="ScopedStorage" />
 
     <application
         android:allowBackup="true"
@@ -13,47 +16,95 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.EduTrack">
+        android:theme="@style/Theme.EduTrack"
+        android:requestLegacyExternalStorage="true">
 
-        <activity android:name=".activities.SplashActivity" 
-                  android:exported="true">
+        <activity android:name=".activities.SplashActivity"
+                  android:exported="true"
+                  android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".activities.RoleSelectionActivity" />
-        <activity android:name=".activities.LoginActivity" />
+        <activity android:name=".activities.RoleSelectionActivity"
+                  android:screenOrientation="portrait" />
+        <activity android:name=".activities.LoginActivity"
+                  android:screenOrientation="portrait" />
 
         <!-- Admin Activities -->
-        <activity android:name=".activities.admin.AdminDashboardActivity" />
-        <activity android:name=".activities.admin.ManageStudentsActivity" />
-        <activity android:name=".activities.admin.AddEditStudentActivity" />
-        <activity android:name=".activities.admin.BulkUploadActivity" />
-        <activity android:name=".activities.admin.ManageTeachersActivity" />
-        <activity android:name=".activities.admin.AddEditTeacherActivity" />
-        <activity android:name=".activities.admin.AssignClassActivity" />
-        <activity android:name=".activities.admin.ManageClassesActivity" />
-        <activity android:name=".activities.admin.AddEditClassActivity" />
-        <activity android:name=".activities.admin.PromoteClassActivity" />
-        <activity android:name=".activities.admin.CreateAnnouncementActivity" />
-        <activity android:name=".activities.admin.DetailedStudentReportActivity" />
-        <activity android:name=".activities.admin.AdminReportsActivity" />
-        <activity android:name=".activities.admin.ReportFiltersActivity" />
-        <activity android:name=".activities.AnnouncementsFeedActivity" />
+        <activity android:name=".activities.admin.AdminDashboardActivity"
+                  android:screenOrientation="portrait" />
+        <activity android:name=".activities.admin.ManageStudentsActivity"
+                  android:screenOrientation="portrait" />
+        <activity android:name=".activities.admin.AddEditStudentActivity"
+                  android:screenOrientation="portrait" />
+        <activity android:name=".activities.admin.BulkUploadActivity"
+                  android:screenOrientation="portrait" />
+        <activity android:name=".activities.admin.ManageTeachersActivity"
+                  android:screenOrientation="portrait" />
+        <activity android:name=".activities.admin.AddEditTeacherActivity"
+                  android:screenOrientation="portrait" />
+        <activity android:name=".activities.admin.AssignClassActivity"
+                  android:screenOrientation="portrait" />
+        <activity android:name=".activities.admin.ManageClassesActivity"
+                  android:screenOrientation="portrait" />
+        <activity android:name=".activities.admin.AddEditClassActivity"
+                  android:screenOrientation="portrait" />
+        <activity android:name=".activities.admin.PromoteClassActivity"
+                  android:screenOrientation="portrait" />
+        <activity android:name=".activities.admin.CreateAnnouncementActivity"
+                  android:screenOrientation="portrait" />
+        <activity android:name=".activities.admin.DetailedStudentReportActivity"
+                  android:screenOrientation="portrait" />
+        <activity android:name=".activities.admin.AdminReportsActivity"
+                  android:screenOrientation="portrait" />
+        <activity android:name=".activities.admin.ReportFiltersActivity"
+                  android:screenOrientation="portrait" />
+        <activity android:name=".activities.admin.ClassSummaryReportActivity"
+                  android:screenOrientation="portrait" />
+        <activity android:name=".activities.admin.MonthlyReportActivity"
+                  android:screenOrientation="portrait" />
+        <activity android:name=".activities.admin.SubjectReportActivity"
+                  android:screenOrientation="portrait" />
+        <activity android:name=".activities.admin.TeacherPerformanceActivity"
+                  android:screenOrientation="portrait" />
+        <activity android:name=".activities.admin.TeacherPerformanceExportActivity"
+                  android:screenOrientation="portrait" />
+        <activity android:name=".activities.admin.SchoolReportActivity"
+                  android:screenOrientation="portrait" />
+        <activity android:name=".activities.AnnouncementsFeedActivity"
+                  android:screenOrientation="portrait" />
 
         <!-- Teacher Activities -->
-        <activity android:name=".activities.teacher.TeacherDashboardActivity" />
-        <activity android:name=".activities.teacher.TakeAttendanceActivity" />
-        <activity android:name=".activities.teacher.AttendanceHistoryActivity" />
-        <activity android:name=".activities.teacher.TeacherReportsActivity" />
+        <activity android:name=".activities.teacher.TeacherDashboardActivity"
+                  android:screenOrientation="portrait" />
+        <activity android:name=".activities.teacher.TakeAttendanceActivity"
+                  android:screenOrientation="portrait" />
+        <activity android:name=".activities.teacher.AttendanceHistoryActivity"
+                  android:screenOrientation="portrait" />
+        <activity android:name=".activities.teacher.TeacherReportsActivity"
+                  android:screenOrientation="portrait" />
 
         <!-- Parent Activities -->
-        <activity android:name=".activities.parent.ParentDashboardActivity" />
-        <activity android:name=".activities.parent.ChildAttendanceDetailActivity" />
+        <activity android:name=".activities.parent.ParentDashboardActivity"
+                  android:screenOrientation="portrait" />
+        <activity android:name=".activities.parent.ChildAttendanceDetailActivity"
+                  android:screenOrientation="portrait" />
 
         <!-- Student Activities -->
-        <activity android:name=".activities.StudentAttendanceActivity" />
+        <activity android:name=".activities.StudentAttendanceActivity"
+                  android:screenOrientation="portrait" />
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
 
     </application>
 

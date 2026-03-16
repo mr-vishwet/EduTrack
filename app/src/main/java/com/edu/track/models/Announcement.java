@@ -4,10 +4,10 @@ public class Announcement {
     private String id;
     private String title;
     private String content;
-    private String category;
-    private String targetRole;
-    private String authorUid;
-    private long timestamp;
+    private String audience;
+    private boolean isPinned;
+    private String author;
+    private java.util.Date timestamp;
 
     public Announcement() {}
 
@@ -18,12 +18,12 @@ public class Announcement {
     public void setTitle(String title) { this.title = title; }
     public String getContent() { return content; }
     public void setContent(String content) { this.content = content; }
-    public String getCategory() { return category; }
-    public void setCategory(String category) { this.category = category; }
-    public String getTargetRole() { return targetRole; }
-    public void setTargetRole(String targetRole) { this.targetRole = targetRole; }
-    public String getAuthorUid() { return authorUid; }
-    public void setAuthorUid(String authorUid) { this.authorUid = authorUid; }
-    public long getTimestamp() { return timestamp; }
-    public void setTimestamp(long timestamp) { this.timestamp = timestamp; }
+    public String getAudience() { return audience; }
+    public void setAudience(String audience) { this.audience = audience; }
+    public boolean isPinned() { return isPinned; }
+    public void setPinned(boolean pinned) { isPinned = pinned; }
+    public String getAuthor() { return author; }
+    public void setAuthor(String author) { this.author = author; }
+    public java.util.Date getTimestamp() { return timestamp; }
+    public void setTimestamp(java.util.Date timestamp) { this.timestamp = timestamp; }
 }

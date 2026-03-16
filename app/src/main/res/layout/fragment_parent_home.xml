@@ -13,7 +13,7 @@
         android:orientation="vertical"
         android:padding="16dp">
 
-        <!-- Shimmer for Child Info and Stats -->
+        <!-- Shimmer Placeholder for Loading State -->
         <com.facebook.shimmer.ShimmerFrameLayout
             android:id="@+id/shimmer_parent_content"
             android:layout_width="match_parent"
@@ -25,252 +25,288 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
 
-                <!-- Child Info Card -->
-                <com.google.android.material.card.MaterialCardView
-                    android:id="@+id/card_child_info"
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="100dp"
+                    android:layout_margin="8dp"
+                    android:background="#DDDDDD" />
+
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <View
+                        android:layout_width="0dp"
+                        android:layout_height="120dp"
+                        android:layout_margin="8dp"
+                        android:layout_weight="1"
+                        android:background="#DDDDDD" />
+
+                    <View
+                        android:layout_width="0dp"
+                        android:layout_height="120dp"
+                        android:layout_margin="8dp"
+                        android:layout_weight="1"
+                        android:background="#DDDDDD" />
+                </LinearLayout>
+            </LinearLayout>
+        </com.facebook.shimmer.ShimmerFrameLayout>
+
+        <!-- Actual Content (Hidden initially) -->
+        <LinearLayout
+            android:id="@+id/layout_actual_content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <!-- Child Info Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/card_child_info"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="8dp"
+                app:cardBackgroundColor="#E8F5E9"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="0dp"
+                app:strokeColor="#C8E6C9"
+                app:strokeWidth="1dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:padding="16dp">
+
+                    <FrameLayout
+                        android:layout_width="64dp"
+                        android:layout_height="64dp"
+                        android:background="@drawable/bg_circle_white"
+                        android:backgroundTint="#C8E6C9">
+
+                        <ImageView
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/ic_child_care" />
+                    </FrameLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:id="@+id/tv_child_name"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="..."
+                                android:textColor="@color/black"
+                                android:textSize="18sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/tv_child_status"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:background="@drawable/bg_chip_selected"
+                                android:backgroundTint="#2E7D32"
+                                android:paddingHorizontal="8dp"
+                                android:paddingVertical="4dp"
+                                android:text="ACTIVE"
+                                android:textColor="@color/white"
+                                android:textSize="10sp"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+
+                        <TextView
+                            android:id="@+id/tv_child_details"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:text="..."
+                            android:textColor="@color/gray_body"
+                            android:textSize="14sp" />
+                    </LinearLayout>
+                </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Stats Grid -->
+            <LinearLayout
+                android:id="@+id/card_attendance_stat"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="horizontal">
+
+                <!-- Overall Card -->
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
                     android:layout_margin="8dp"
-                    app:cardBackgroundColor="#E8F5E9"
-                    app:cardCornerRadius="16dp"
-                    app:cardElevation="0dp"
-                    app:strokeColor="#C8E6C9"
+                    android:layout_weight="1"
+                    app:cardBackgroundColor="@color/white"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="1dp"
+                    app:strokeColor="#E2E8F0"
                     app:strokeWidth="1dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal"
-                        android:padding="16dp">
+                        android:layout_height="match_parent"
+                        android:orientation="horizontal">
 
-                        <FrameLayout
-                            android:layout_width="64dp"
-                            android:layout_height="64dp"
-                            android:background="@drawable/bg_circle_white"
-                            android:backgroundTint="#C8E6C9">
-
-                            <ImageView
-                                android:layout_width="32dp"
-                                android:layout_height="32dp"
-                                android:layout_gravity="center"
-                                android:src="@drawable/ic_child_care" />
-                        </FrameLayout>
+                        <View
+                            android:layout_width="4dp"
+                            android:layout_height="match_parent"
+                            android:background="@drawable/bg_green_border_left" />
 
                         <LinearLayout
-                            android:layout_width="0dp"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginStart="16dp"
-                            android:layout_weight="1"
-                            android:orientation="vertical">
+                            android:orientation="vertical"
+                            android:padding="16dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="OVERALL"
+                                android:textColor="@color/gray_caption"
+                                android:textSize="12sp"
+                                android:textStyle="bold" />
 
                             <LinearLayout
-                                android:layout_width="match_parent"
+                                android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:gravity="center_vertical"
+                                android:layout_marginTop="8dp"
+                                android:gravity="bottom"
                                 android:orientation="horizontal">
 
                                 <TextView
-                                    android:id="@+id/tv_child_name"
-                                    android:layout_width="0dp"
+                                    android:id="@+id/tv_stat_overall"
+                                    android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:layout_weight="1"
                                     android:text="..."
                                     android:textColor="@color/black"
-                                    android:textSize="18sp"
+                                    android:textSize="24sp"
                                     android:textStyle="bold" />
 
                                 <TextView
-                                    android:id="@+id/tv_child_status"
+                                    android:id="@+id/tv_stat_change"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:background="@drawable/bg_chip_selected"
-                                    android:backgroundTint="#2E7D32"
-                                    android:paddingHorizontal="8dp"
-                                    android:paddingVertical="4dp"
-                                    android:text="ACTIVE"
-                                    android:textColor="@color/white"
-                                    android:textSize="10sp"
+                                    android:layout_marginStart="4dp"
+                                    android:layout_marginBottom="4dp"
+                                    android:text="..."
+                                    android:textColor="@color/present_green"
+                                    android:textSize="14sp"
                                     android:textStyle="bold" />
+
                             </LinearLayout>
 
-                            <TextView
-                                android:id="@+id/tv_child_details"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="4dp"
-                                android:text="..."
-                                android:textColor="@color/gray_body"
-                                android:textSize="14sp" />
+                            <ProgressBar
+                                android:id="@+id/pb_overall"
+                                style="?android:attr/progressBarStyleHorizontal"
+                                android:layout_width="match_parent"
+                                android:layout_height="6dp"
+                                android:layout_marginTop="12dp"
+                                android:progress="0"
+                                android:progressTint="@color/present_green" />
+
                         </LinearLayout>
                     </LinearLayout>
-
                 </com.google.android.material.card.MaterialCardView>
 
-                <!-- Stats Grid -->
-                <LinearLayout
-                    android:layout_width="match_parent"
+                <!-- This Month Card -->
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:orientation="horizontal">
+                    android:layout_margin="8dp"
+                    android:layout_weight="1"
+                    app:cardBackgroundColor="@color/white"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="1dp"
+                    app:strokeColor="#E2E8F0"
+                    app:strokeWidth="1dp">
 
-                    <!-- Overall Card -->
-                    <com.google.android.material.card.MaterialCardView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_margin="8dp"
-                        android:layout_weight="1"
-                        app:cardBackgroundColor="@color/white"
-                        app:cardCornerRadius="12dp"
-                        app:cardElevation="1dp"
-                        app:strokeColor="#E2E8F0"
-                        app:strokeWidth="1dp">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:orientation="horizontal">
+
+                        <View
+                            android:layout_width="4dp"
+                            android:layout_height="match_parent"
+                            android:background="@drawable/bg_blue_border_left" />
 
                         <LinearLayout
                             android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:orientation="horizontal">
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:padding="16dp">
 
-                            <View
-                                android:layout_width="4dp"
-                                android:layout_height="match_parent"
-                                android:background="@drawable/bg_green_border_left" />
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="THIS MONTH"
+                                android:textColor="@color/gray_caption"
+                                android:textSize="12sp"
+                                android:textStyle="bold" />
 
                             <LinearLayout
-                                android:layout_width="match_parent"
+                                android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:orientation="vertical"
-                                android:padding="16dp">
+                                android:layout_marginTop="8dp"
+                                android:gravity="bottom"
+                                android:orientation="horizontal">
+
+                                <TextView
+                                    android:id="@+id/tv_stat_month"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="..."
+                                    android:textColor="@color/black"
+                                    android:textSize="24sp"
+                                    android:textStyle="bold" />
 
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text="OVERALL"
+                                    android:layout_marginStart="4dp"
+                                    android:layout_marginBottom="4dp"
+                                    android:text="days"
                                     android:textColor="@color/gray_caption"
-                                    android:textSize="12sp"
-                                    android:textStyle="bold" />
-
-                                <LinearLayout
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginTop="8dp"
-                                    android:gravity="bottom"
-                                    android:orientation="horizontal">
-
-                                    <TextView
-                                        android:id="@+id/tv_stat_overall"
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:text="..."
-                                        android:textColor="@color/black"
-                                        android:textSize="24sp"
-                                        android:textStyle="bold" />
-
-                                    <TextView
-                                        android:id="@+id/tv_stat_change"
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:layout_marginStart="4dp"
-                                        android:layout_marginBottom="4dp"
-                                        android:text="..."
-                                        android:textColor="@color/present_green"
-                                        android:textSize="14sp"
-                                        android:textStyle="bold" />
-
-                                </LinearLayout>
-
-                                <ProgressBar
-                                    android:id="@+id/pb_overall"
-                                    style="?android:attr/progressBarStyleHorizontal"
-                                    android:layout_width="match_parent"
-                                    android:layout_height="6dp"
-                                    android:layout_marginTop="12dp"
-                                    android:progress="0"
-                                    android:progressTint="@color/present_green" />
+                                    android:textSize="14sp" />
 
                             </LinearLayout>
-                        </LinearLayout>
-                    </com.google.android.material.card.MaterialCardView>
 
-                    <!-- This Month Card -->
-                    <com.google.android.material.card.MaterialCardView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_margin="8dp"
-                        android:layout_weight="1"
-                        app:cardBackgroundColor="@color/white"
-                        app:cardCornerRadius="12dp"
-                        app:cardElevation="1dp"
-                        app:strokeColor="#E2E8F0"
-                        app:strokeWidth="1dp">
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:orientation="horizontal">
-
-                            <View
-                                android:layout_width="4dp"
-                                android:layout_height="match_parent"
-                                android:background="@drawable/bg_blue_border_left" />
-
-                            <LinearLayout
+                            <ProgressBar
+                                android:id="@+id/pb_month"
+                                style="?android:attr/progressBarStyleHorizontal"
                                 android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:orientation="vertical"
-                                android:padding="16dp">
+                                android:layout_height="6dp"
+                                android:layout_marginTop="12dp"
+                                android:progress="0"
+                                android:progressTint="#2196F3" />
 
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="THIS MONTH"
-                                    android:textColor="@color/gray_caption"
-                                    android:textSize="12sp"
-                                    android:textStyle="bold" />
-
-                                <LinearLayout
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginTop="8dp"
-                                    android:gravity="bottom"
-                                    android:orientation="horizontal">
-
-                                    <TextView
-                                        android:id="@+id/tv_stat_month"
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:text="..."
-                                        android:textColor="@color/black"
-                                        android:textSize="24sp"
-                                        android:textStyle="bold" />
-
-                                    <TextView
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:layout_marginStart="4dp"
-                                        android:layout_marginBottom="4dp"
-                                        android:text="days"
-                                        android:textColor="@color/gray_caption"
-                                        android:textSize="14sp" />
-
-                                </LinearLayout>
-
-                                <ProgressBar
-                                    android:id="@+id/pb_month"
-                                    style="?android:attr/progressBarStyleHorizontal"
-                                    android:layout_width="match_parent"
-                                    android:layout_height="6dp"
-                                    android:layout_marginTop="12dp"
-                                    android:progress="0"
-                                    android:progressTint="#2196F3" />
-
-                            </LinearLayout>
                         </LinearLayout>
-                    </com.google.android.material.card.MaterialCardView>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
 
-                </LinearLayout>
             </LinearLayout>
-        </com.facebook.shimmer.ShimmerFrameLayout>
+        </LinearLayout>
 
         <!-- Announcements Header -->
         <LinearLayout
@@ -300,82 +336,13 @@
                 android:textStyle="bold" />
         </LinearLayout>
 
-        <!-- Announcement 1 -->
-        <com.google.android.material.card.MaterialCardView
+        <LinearLayout
+            android:id="@+id/ll_announcements_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="8dp"
-            android:layout_marginBottom="12dp"
-            app:cardBackgroundColor="@color/white"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="1dp"
-            app:strokeColor="#E2E8F0"
-            app:strokeWidth="1dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:padding="16dp">
-
-                <FrameLayout
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:background="@drawable/bg_circle_teal"
-                    android:backgroundTint="#FFF3E0">
-
-                    <ImageView
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:layout_gravity="center"
-                        android:src="@drawable/ic_campaign" />
-                </FrameLayout>
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal">
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:ellipsize="end"
-                            android:maxLines="1"
-                            android:text="Holiday Notice"
-                            android:textColor="@color/black"
-                            android:textSize="16sp"
-                            android:textStyle="bold" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="15 Mar"
-                            android:textColor="@color/gray_caption"
-                            android:textSize="12sp" />
-
-                    </LinearLayout>
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:ellipsize="end"
-                        android:maxLines="1"
-                        android:text="School will remain closed on Wednesday due to the local festival celebration."
-                        android:textColor="@color/gray_body"
-                        android:textSize="14sp" />
-
-                </LinearLayout>
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
+            android:orientation="vertical">
+            <!-- Dynamic announcements will be inflated here -->
+        </LinearLayout>
 
     </LinearLayout>
 </androidx.core.widget.NestedScrollView>

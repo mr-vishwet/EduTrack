@@ -18,14 +18,16 @@ public class AttendanceAdapter extends RecyclerView.Adapter<AttendanceAdapter.Vi
 
     private List<AttendanceRecord> records;
     private OnRecordClickListener listener;
+    private boolean isTeacher;
 
     public interface OnRecordClickListener {
         void onEdit(AttendanceRecord record);
         void onDelete(AttendanceRecord record);
     }
 
-    public AttendanceAdapter(List<AttendanceRecord> records, OnRecordClickListener listener) {
+    public AttendanceAdapter(List<AttendanceRecord> records, boolean isTeacher, OnRecordClickListener listener) {
         this.records = records;
+        this.isTeacher = isTeacher;
         this.listener = listener;
     }
 
@@ -45,8 +47,15 @@ public class AttendanceAdapter extends RecyclerView.Adapter<AttendanceAdapter.Vi
         holder.tvPresent.setText(String.valueOf(record.getPresentCount()));
         holder.tvAbsent.setText(String.valueOf(record.getTotalCount() - record.getPresentCount()));
 
-        holder.btnEdit.setOnClickListener(v -> listener.onEdit(record));
-        holder.btnDelete.setOnClickListener(v -> listener.onDelete(record));
+        if (isTeacher) {
+            holder.btnEdit.setVisibility(View.GONE);
+            holder.btnDelete.setVisibility(View.GONE);
+        } else {
+            holder.btnEdit.setVisibility(View.VISIBLE);
+            holder.btnDelete.setVisibility(View.VISIBLE);
+            holder.btnEdit.setOnClickListener(v -> listener.onEdit(record));
+            holder.btnDelete.setOnClickListener(v -> listener.onDelete(record));
+        }
     }
 
     @Override

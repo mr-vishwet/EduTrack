@@ -65,6 +65,20 @@ public class AddEditTeacherActivity extends AppCompatActivity {
         findViewById(R.id.btn_close).setOnClickListener(v -> onBackPressed());
         findViewById(R.id.btn_save_header).setOnClickListener(v -> saveTeacher());
         findViewById(R.id.btn_action).setOnClickListener(v -> saveTeacher());
+
+        etName.addTextChangedListener(new android.text.TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence s, int a, int b, int c) {}
+            @Override public void onTextChanged(CharSequence s, int a, int b, int c) {
+                if (!isEditMode && s.length() > 0) {
+                    String[] parts = s.toString().trim().split("\\s+");
+                    if (parts.length >= 2) {
+                        String suggested = parts[0].toLowerCase() + "." + parts[1].toLowerCase() + "@edutrack.com";
+                        etEmail.setText(suggested);
+                    }
+                }
+            }
+            @Override public void afterTextChanged(android.text.Editable s) {}
+        });
     }
 
     private void saveTeacher() {
@@ -74,6 +88,11 @@ public class AddEditTeacherActivity extends AppCompatActivity {
 
         if (name.isEmpty() || email.isEmpty()) {
             Toast.makeText(this, "Name and Email are required", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (!email.endsWith("@edutrack.com")) {
+            etEmail.setError("Email must end with @edutrack.com");
             return;
         }
 

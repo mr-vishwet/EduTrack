@@ -39,8 +39,12 @@ public class AnnouncementAdapter extends RecyclerView.Adapter<AnnouncementAdapte
         Announcement announcement = announcements.get(position);
         holder.tvTitle.setText(announcement.getTitle());
         holder.tvContent.setText(announcement.getContent());
-        holder.tvDate.setText(dateFormat.format(new Date(announcement.getTimestamp())));
-        holder.tvCategory.setText(announcement.getCategory());
+        
+        Date ts = announcement.getTimestamp();
+        holder.tvDate.setText(ts != null ? dateFormat.format(ts) : "N/A");
+        
+        // Show audience instead of category
+        holder.tvCategory.setText(announcement.getAudience() != null ? announcement.getAudience() : "General");
     }
 
     @Override

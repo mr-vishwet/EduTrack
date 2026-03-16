@@ -72,7 +72,27 @@ public class ManageClassesActivity extends androidx.appcompat.app.AppCompatActiv
                     if (value != null) {
                         classList.clear();
                         classList.addAll(value.toObjects(com.edu.track.models.SchoolClass.class));
-                        adapter.notifyDataSetChanged();
+                        
+                        db.collection("teachers").get().addOnSuccessListener(teachersSnap -> {
+                            java.util.Map<String, String> classToTeacher = new java.util.HashMap<>();
+                            for (com.google.firebase.firestore.DocumentSnapshot doc : teachersSnap.getDocuments()) {
+                                String tName = doc.getString("name");
+                                String assignedClass = doc.getString("classTeacher");
+                                if (tName != null && assignedClass != null && !assignedClass.isEmpty()) {
+                                    classToTeacher.put(assignedClass, tName);
+                                }
+                            }
+                            
+                            for (com.edu.track.models.SchoolClass sc : classList) {
+                                String classId = sc.getStandard() + sc.getDivision();
+                                if (classToTeacher.containsKey(classId)) {
+                                    sc.setClassTeacherName(classToTeacher.get(classId));
+                                }
+                            }
+                            adapter.notifyDataSetChanged();
+                        }).addOnFailureListener(e -> {
+                            adapter.notifyDataSetChanged();
+                        });
                     }
                 });
     }

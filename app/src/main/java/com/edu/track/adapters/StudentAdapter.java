@@ -9,21 +9,47 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.edu.track.R;
 import com.edu.track.models.Student;
+import java.util.ArrayList;
 import java.util.List;
 
 public class StudentAdapter extends RecyclerView.Adapter<StudentAdapter.StudentViewHolder> {
 
-    private final List<Student> studentList;
+    private List<Student> studentList;
+    private List<Student> studentListFull; // For filtering
     private final OnStudentClickListener listener;
 
     public interface OnStudentClickListener {
         void onEdit(Student student);
         void onDelete(Student student);
+        void onItemClick(Student student);
     }
 
     public StudentAdapter(List<Student> studentList, OnStudentClickListener listener) {
         this.studentList = studentList;
+        this.studentListFull = new ArrayList<>(studentList);
         this.listener = listener;
+    }
+
+    public void updateList(List<Student> newList) {
+        this.studentList = newList;
+        this.studentListFull = new ArrayList<>(newList);
+        notifyDataSetChanged();
+    }
+
+    public void filter(String query) {
+        List<Student> filteredList = new ArrayList<>();
+        if (query == null || query.isEmpty()) {
+            filteredList.addAll(studentListFull);
+        } else {
+            String filterPattern = query.toLowerCase().trim();
+            for (Student item : studentListFull) {
+                if (item.getName().toLowerCase().contains(filterPattern)) {
+                    filteredList.add(item);
+                }
+            }
+        }
+        this.studentList = filteredList;
+        notifyDataSetChanged();
     }
 
     @NonNull
@@ -63,6 +89,8 @@ public class StudentAdapter extends RecyclerView.Adapter<StudentAdapter.StudentV
             if (student.getStudentId() != null && student.getStudentId().startsWith("ROLL_")) {
                 String[] parts = student.getStudentId().split("_");
                 if (parts.length > 1) roll = parts[1];
+            } else {
+                roll = String.valueOf(student.getRollNumber());
             }
             if (roll.length() == 1) roll = "0" + roll;
 
@@ -72,6 +100,7 @@ public class StudentAdapter extends RecyclerView.Adapter<StudentAdapter.StudentV
 
             btnEdit.setOnClickListener(v -> listener.onEdit(student));
             btnDelete.setOnClickListener(v -> listener.onDelete(student));
+            itemView.setOnClickListener(v -> listener.onItemClick(student));
         }
     }
 }

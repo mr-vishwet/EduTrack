@@ -82,10 +82,15 @@ public class AnnouncementsFeedActivity extends AppCompatActivity {
 
         ImageView btnCreate = findViewById(R.id.btn_create_announcement);
         if (btnCreate != null) {
-            // Only admins should see this, for now hidden if not admin in real app
-            btnCreate.setOnClickListener(v -> {
-                // Future: show create dialog or activity
-            });
+            String role = getSharedPreferences("EduTrackPrefs", MODE_PRIVATE).getString("USER_ROLE", "");
+            if ("ADMIN".equals(role)) {
+                btnCreate.setVisibility(View.VISIBLE);
+                btnCreate.setOnClickListener(v -> {
+                    startActivity(new android.content.Intent(this, com.edu.track.activities.admin.CreateAnnouncementActivity.class));
+                });
+            } else {
+                btnCreate.setVisibility(View.GONE);
+            }
         }
     }
 }

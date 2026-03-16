@@ -2,49 +2,102 @@ package com.edu.track.activities.admin;
 
 import android.app.DatePickerDialog;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.edu.track.R;
+import com.edu.track.adapters.ReportAdapter;
+import com.edu.track.models.ReportItem;
+import com.edu.track.utils.FirebaseSource;
+import com.edu.track.utils.ReportManager;
+import com.facebook.shimmer.ShimmerFrameLayout;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 public class ReportFiltersActivity extends AppCompatActivity {
 
     private EditText etFromDate, etToDate;
     private final Calendar calendar = Calendar.getInstance();
-    private final SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+    // Store in "dd/MM/yyyy" for display, convert to "yyyy-MM-dd" for DB query
+    private final SimpleDateFormat displayFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+    private final SimpleDateFormat dbFormat     = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+
+    private Spinner spinnerClass;
+    private RecyclerView rvResults;
+    private ReportAdapter adapter;
+    private ShimmerFrameLayout shimmerContainer;
+    private List<ReportItem> resultItems;
+    private List<String[]> exportData;
+    private FirebaseFirestore db;
+    private List<String> classOptions;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_report_filters);
 
-        etFromDate = findViewById(R.id.et_from_date);
-        etToDate = findViewById(R.id.et_to_date);
+        db = FirebaseSource.getInstance().getFirestore();
 
-        setupSpinners();
+        etFromDate = findViewById(R.id.et_from_date);
+        etToDate   = findViewById(R.id.et_to_date);
+        spinnerClass       = findViewById(R.id.spinner_class);
+        shimmerContainer   = findViewById(R.id.shimmer_view_container);
+        rvResults          = findViewById(R.id.rv_filter_results);
+
+        resultItems = new ArrayList<>();
+        exportData  = new ArrayList<>();
+
+        if (rvResults != null) {
+            rvResults.setLayoutManager(new LinearLayoutManager(this));
+            adapter = new ReportAdapter(this, resultItems);
+            rvResults.setAdapter(adapter);
+        }
+
+        // Default dates: from March 1 to today
+        etFromDate.setText("01/03/2026");
+        etToDate.setText(displayFormat.format(new Date()));
+
+        loadClassesIntoSpinner();
         setupClickListeners();
     }
 
-    private void setupSpinners() {
-        String[] classes = {"All Classes", "8th A", "8th B", "9th A", "9th B"};
-        String[] subjects = {"All Subjects", "Mathematics", "Science", "English"};
+    private void loadClassesIntoSpinner() {
+        classOptions = new ArrayList<>();
+        classOptions.add("All Classes");
 
-        Spinner spinnerClass = findViewById(R.id.spinner_class);
-        Spinner spinnerSubject = findViewById(R.id.spinner_subject);
-
-        if (spinnerClass != null)
-            spinnerClass.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, classes));
-        if (spinnerSubject != null)
-            spinnerSubject.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, subjects));
+        db.collection("classes").orderBy("standard").get().addOnSuccessListener(snap -> {
+            for (QueryDocumentSnapshot doc : snap) {
+                String std = doc.getString("standard");
+                String div = doc.getString("division");
+                if (std != null && div != null) {
+                    classOptions.add("Std " + std + " - " + div);
+                }
+            }
+            ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
+                    android.R.layout.simple_spinner_dropdown_item, classOptions);
+            if (spinnerClass != null) spinnerClass.setAdapter(adapter);
+        });
     }
 
     private void setupClickListeners() {
@@ -52,16 +105,150 @@ public class ReportFiltersActivity extends AppCompatActivity {
         if (btnBack != null) btnBack.setOnClickListener(v -> onBackPressed());
 
         if (etFromDate != null) etFromDate.setOnClickListener(v -> showDatePicker(etFromDate));
-        if (etToDate != null) etToDate.setOnClickListener(v -> showDatePicker(etToDate));
+        if (etToDate   != null) etToDate.setOnClickListener(v -> showDatePicker(etToDate));
 
-        findViewById(R.id.btn_apply).setOnClickListener(v -> 
-            Toast.makeText(this, "Filters applied! Showing preview.", Toast.LENGTH_SHORT).show());
+        View btnApply = findViewById(R.id.btn_apply);
+        if (btnApply != null) btnApply.setOnClickListener(v -> applyFilters());
 
-        findViewById(R.id.btn_export_csv).setOnClickListener(v -> 
-            Toast.makeText(this, "Generating CSV...", Toast.LENGTH_SHORT).show());
+        View btnExportCsv = findViewById(R.id.btn_export_csv);
+        if (btnExportCsv != null) btnExportCsv.setOnClickListener(v -> exportReport(false));
 
-        findViewById(R.id.btn_export_pdf).setOnClickListener(v -> 
-            Toast.makeText(this, "Generating PDF...", Toast.LENGTH_SHORT).show());
+        View btnExportPdf = findViewById(R.id.btn_export_pdf);
+        if (btnExportPdf != null) btnExportPdf.setOnClickListener(v -> exportReport(true));
+    }
+
+    private void applyFilters() {
+        String fromStr = etFromDate.getText().toString().trim();
+        String toStr   = etToDate.getText().toString().trim();
+
+        if (fromStr.isEmpty() || toStr.isEmpty()) {
+            Toast.makeText(this, "Please select both From and To dates", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        String fromDb, toDb;
+        try {
+            fromDb = dbFormat.format(displayFormat.parse(fromStr));
+            toDb   = dbFormat.format(displayFormat.parse(toStr));
+        } catch (ParseException e) {
+            Toast.makeText(this, "Invalid date format", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        String selectedClass = spinnerClass != null &&
+                spinnerClass.getSelectedItemPosition() > 0
+                ? classOptions.get(spinnerClass.getSelectedItemPosition()) : null;
+
+        // Parse standard and division from "Std 7 - B"
+        String filterStd = null, filterDiv = null;
+        if (selectedClass != null) {
+            // format: "Std 7 - B"
+            String[] parts = selectedClass.replace("Std ", "").split(" - ");
+            if (parts.length == 2) {
+                filterStd = parts[0].trim();
+                filterDiv = parts[1].trim();
+            }
+        }
+
+        if (shimmerContainer != null) {
+            shimmerContainer.setVisibility(View.VISIBLE);
+            shimmerContainer.startShimmer();
+        }
+        if (rvResults != null) rvResults.setVisibility(View.GONE);
+
+        final String fStd = filterStd, fDiv = filterDiv;
+        queryAttendance(fromDb, toDb, fStd, fDiv);
+    }
+
+    private void queryAttendance(String fromDb, String toDb, String filterStd, String filterDiv) {
+        com.google.firebase.firestore.Query query = db.collection("attendance_records")
+                .whereGreaterThanOrEqualTo("date", fromDb)
+                .whereLessThanOrEqualTo("date", toDb);
+
+        query.get().addOnSuccessListener(snap -> {
+            resultItems.clear();
+            exportData.clear();
+            exportData.add(new String[]{"Date", "Class", "Section", "Present", "Total", "%"});
+
+            // Group by class → date to aggregate per-class per-day
+            Map<String, Map<String, int[]>> classDateMap = new HashMap<>();
+
+            for (QueryDocumentSnapshot doc : snap) {
+                String std = doc.getString("standard");
+                String div = doc.getString("division");
+                String date = doc.getString("date");
+
+                // Apply class filter
+                if (filterStd != null && (!filterStd.equals(std) || !filterDiv.equals(div))) continue;
+
+                Map<String, Boolean> statuses = (Map<String, Boolean>) doc.get("statuses");
+                int total   = statuses != null ? statuses.size() : 0;
+                int present = 0;
+                if (statuses != null) for (Boolean b : statuses.values()) if (b) present++;
+
+                String classKey = "Std " + std + " - " + div;
+                classDateMap.computeIfAbsent(classKey, k -> new HashMap<>())
+                        .put(date, new int[]{present, total});
+            }
+
+            for (Map.Entry<String, Map<String, int[]>> e : classDateMap.entrySet()) {
+                String cls = e.getKey();
+                int totalPresent = 0, totalStudents = 0;
+                for (int[] pt : e.getValue().values()) {
+                    totalPresent  += pt[0];
+                    totalStudents += pt[1];
+                }
+                double pct = totalStudents > 0 ? totalPresent * 100.0 / totalStudents : 0;
+                String pctStr = String.format(Locale.getDefault(), "%.1f%%", pct);
+                String recordsStr = e.getValue().size() + " days";
+
+                resultItems.add(new ReportItem(cls, pctStr, recordsStr));
+                exportData.add(new String[]{
+                        fromDb + " to " + toDb, cls, "", String.valueOf(totalPresent),
+                        String.valueOf(totalStudents), pctStr
+                });
+            }
+
+            if (shimmerContainer != null) {
+                shimmerContainer.stopShimmer();
+                shimmerContainer.setVisibility(View.GONE);
+            }
+            if (rvResults != null) rvResults.setVisibility(View.VISIBLE);
+            if (adapter != null) adapter.notifyDataSetChanged();
+
+            if (resultItems.isEmpty()) {
+                Toast.makeText(this, "No records found for selected filters.", Toast.LENGTH_SHORT).show();
+            }
+        }).addOnFailureListener(e -> {
+            if (shimmerContainer != null) {
+                shimmerContainer.stopShimmer();
+                shimmerContainer.setVisibility(View.GONE);
+            }
+            Toast.makeText(this, "Query failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        });
+    }
+
+    private void exportReport(boolean isPdf) {
+        if (exportData.size() <= 1) {
+            Toast.makeText(this, "Apply filters first to load data", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        String fileName = "ClassWise_Report_" + System.currentTimeMillis();
+        if (isPdf) {
+            ReportManager.exportToPDF(this, "Class-wise Attendance", fileName, "Admin/ClassWise", exportData,
+                    new ReportManager.ExportCallback() {
+                        @Override public void onSuccess(String fp) { ReportManager.showExportSuccessDialog(ReportFiltersActivity.this, fp); }
+                        @Override public void onFailure(Exception e) { Toast.makeText(ReportFiltersActivity.this, "PDF Export failed: " + e.getMessage(), Toast.LENGTH_SHORT).show(); }
+                    });
+        } else {
+            StringBuilder csv = new StringBuilder();
+            for (String[] row : exportData) csv.append(String.join(",", row)).append("\n");
+            ReportManager.exportToCSV(this, fileName, "Admin/ClassWise", csv.toString(),
+                    new ReportManager.ExportCallback() {
+                        @Override public void onSuccess(String fp) { ReportManager.showExportSuccessDialog(ReportFiltersActivity.this, fp); }
+                        @Override public void onFailure(Exception e) { Toast.makeText(ReportFiltersActivity.this, "CSV Export failed: " + e.getMessage(), Toast.LENGTH_SHORT).show(); }
+                    });
+        }
     }
 
     private void showDatePicker(EditText editText) {
@@ -69,7 +256,7 @@ public class ReportFiltersActivity extends AppCompatActivity {
             calendar.set(Calendar.YEAR, year);
             calendar.set(Calendar.MONTH, month);
             calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-            editText.setText(dateFormat.format(calendar.getTime()));
+            editText.setText(displayFormat.format(calendar.getTime()));
         }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH)).show();
     }
 }

@@ -2,16 +2,19 @@ package com.edu.track.activities.teacher;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.edu.track.R;
-import com.edu.track.activities.LoginActivity;
+import com.edu.track.activities.SplashActivity;
 import com.edu.track.fragments.teacher.TeacherHomeFragment;
+import com.edu.track.fragments.teacher.TeacherProfileFragment;
 import com.edu.track.utils.FirebaseSource;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseUser;
@@ -32,11 +35,10 @@ public class TeacherDashboardActivity extends AppCompatActivity {
         bottomNav = findViewById(R.id.bottom_navigation);
         fragmentManager = getSupportFragmentManager();
 
-        loadTeacherProfile();
+        loadTeacherGreeting();
         setupClickListeners();
         setupBottomNavigation();
 
-        // Load Default Fragment
         if (savedInstanceState == null) {
             loadFragment(new TeacherHomeFragment(), "HOME");
         }
@@ -45,25 +47,17 @@ public class TeacherDashboardActivity extends AppCompatActivity {
     private void setupBottomNavigation() {
         bottomNav.setOnItemSelectedListener(item -> {
             int itemId = item.getItemId();
-            Fragment fragment = null;
-            String tag = "";
 
             if (itemId == R.id.nav_teacher_dashboard) {
-                fragment = new TeacherHomeFragment();
-                tag = "HOME";
-            } else if (itemId == R.id.nav_teacher_attendance) {
-                startActivity(new Intent(this, TakeAttendanceActivity.class));
-                return false;
+                loadFragment(new TeacherHomeFragment(), "HOME");
+                return true;
             } else if (itemId == R.id.nav_teacher_classes) {
-                // Classes fragment can be added here
-                return true;
+                // "History" tab — opens AttendanceHistoryActivity filtered by teacher's classes
+                startActivity(new Intent(this, AttendanceHistoryActivity.class)
+                        .putExtra("teacher_filter", true));
+                return false; // don't change selected tab when launching activity
             } else if (itemId == R.id.nav_teacher_profile) {
-                // Profile fragment can be added here
-                return true;
-            }
-
-            if (fragment != null) {
-                loadFragment(fragment, tag);
+                loadFragment(new TeacherProfileFragment(), "PROFILE");
                 return true;
             }
             return false;
@@ -77,32 +71,51 @@ public class TeacherDashboardActivity extends AppCompatActivity {
         transaction.commit();
     }
 
-    private void loadTeacherProfile() {
+    private void loadTeacherGreeting() {
         FirebaseUser user = FirebaseSource.getInstance().getAuth().getCurrentUser();
         if (user != null) {
             FirebaseSource.getInstance().getTeachersRef().document(user.getUid())
-                .addSnapshotListener((value, error) -> {
-                    if (value != null && value.exists()) {
-                        String name = value.getString("name");
-                        Object assignedClasses = value.get("metadata.assignedClasses");
-                        
-                        if (tvGreeting != null && name != null) tvGreeting.setText("Hello, " + name);
-                        if (tvSubtitle != null && assignedClasses != null) {
-                            tvSubtitle.setText("Class Teacher · " + assignedClasses.toString());
+                    .addSnapshotListener((value, error) -> {
+                        if (value != null && value.exists()) {
+                            String name = value.getString("name");
+                            String expertise = value.getString("expertise");
+                            String classTeacher = value.getString("classTeacher");
+
+                            if (tvGreeting != null && name != null)
+                                tvGreeting.setText("Hello, " + name);
+
+                            if (tvSubtitle != null) {
+                                if (classTeacher != null && !classTeacher.isEmpty()) {
+                                    tvSubtitle.setText("Class Teacher · Std " + classTeacher);
+                                } else if (expertise != null && !expertise.isEmpty()) {
+                                    tvSubtitle.setText(expertise + " Teacher");
+                                } else {
+                                    tvSubtitle.setText("Teacher");
+                                }
+                            }
                         }
-                    }
-                });
+                    });
         }
     }
 
     private void setupClickListeners() {
         ImageView btnLogout = findViewById(R.id.btn_logout);
         if (btnLogout != null) btnLogout.setOnClickListener(v -> logout());
+
+        View tvAvatar = findViewById(R.id.tv_avatar);
+        if (tvAvatar != null) {
+            tvAvatar.setOnClickListener(v -> {
+                if (bottomNav != null) {
+                    bottomNav.setSelectedItemId(R.id.nav_teacher_profile);
+                }
+            });
+        }
     }
 
     private void logout() {
         FirebaseSource.getInstance().getAuth().signOut();
-        Intent intent = new Intent(this, LoginActivity.class);
+        getSharedPreferences("EduTrackPrefs", MODE_PRIVATE).edit().clear().apply();
+        Intent intent = new Intent(this, SplashActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
         finish();

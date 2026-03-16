@@ -77,8 +77,8 @@ async function setup() {
         const surname = getRandom(indianNames.surnames);
         const title = isMale ? "sir" : "mam";
         const fullName = `${firstName} ${surname} ${title}`;
-        const email = `subject_teacher_${i}@edutrack.com`;
         const expertise = getRandom(subjects);
+        const email = `${firstName.toLowerCase()}.${surname.toLowerCase()}@edutrack.com`;
 
         const uid = await createAuthUser(email, 'password123', fullName);
         
@@ -109,7 +109,7 @@ async function setup() {
         const tSurname = getRandom(indianNames.surnames);
         const tTitle = isMale ? "sir" : "mam";
         const tName = `${tFirstName} ${tSurname} ${tTitle}`;
-        const tEmail = `teacher_${classId.toLowerCase()}@edutrack.com`;
+        const tEmail = `${tFirstName.toLowerCase()}.${tSurname.toLowerCase()}@edutrack.com`;
 
         const tUid = await createAuthUser(tEmail, 'password123', tName);
         await db.collection('teachers').doc(tUid).set({

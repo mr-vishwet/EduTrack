@@ -56,9 +56,9 @@ public class TeacherAdapter extends RecyclerView.Adapter<TeacherAdapter.TeacherV
         }
 
         public void bind(User teacher, OnTeacherClickListener listener) {
-            tvName.setText(teacher.getName());
-            
-            // Get initials
+            tvName.setText(teacher.getName() != null ? teacher.getName() : "Unknown");
+
+            // Initials
             String initials = "T";
             if (teacher.getName() != null && !teacher.getName().isEmpty()) {
                 String[] words = teacher.getName().split(" ");
@@ -70,10 +70,11 @@ public class TeacherAdapter extends RecyclerView.Adapter<TeacherAdapter.TeacherV
             }
             tvInitials.setText(initials);
 
-            // Get subject from metadata
-            String subject = "Specialist";
-            if (teacher.getMetadata() != null && teacher.getMetadata().containsKey("subject")) {
-                subject = String.valueOf(teacher.getMetadata().get("subject"));
+            // Expertise + classTeacher badge
+            String subject = teacher.getDisplayExpertise();
+            String classT = teacher.getClassTeacher();
+            if (classT != null && !classT.isEmpty()) {
+                subject = subject + "  ·  Class Teacher: " + classT;
             }
             tvSubject.setText(subject);
 

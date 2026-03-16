@@ -3,15 +3,11 @@
     <item
         android:id="@+id/nav_teacher_dashboard"
         android:icon="@drawable/ic_school"
-        android:title="Dashboard" />
-    <item
-        android:id="@+id/nav_teacher_attendance"
-        android:icon="@drawable/ic_calendar_today"
-        android:title="Attendance" />
+        android:title="Home" />
     <item
         android:id="@+id/nav_teacher_classes"
-        android:icon="@drawable/ic_group"
-        android:title="Classes" />
+        android:icon="@drawable/ic_calendar_today"
+        android:title="History" />
     <item
         android:id="@+id/nav_teacher_profile"
         android:icon="@drawable/ic_person"

@@ -79,7 +79,8 @@ public class LoginActivity extends AppCompatActivity {
         String finalEmail = loginId;
         if ("PARENT".equals(selectedRole)) {
             if (!loginId.contains("@")) {
-                finalEmail = loginId + "@edutrack.com";
+                // Database stores emails in lowercase, so always lowercase before constructing
+                finalEmail = loginId.toLowerCase(java.util.Locale.getDefault()) + "@edutrack.com";
             }
         }
         if (TextUtils.isEmpty(password)) {

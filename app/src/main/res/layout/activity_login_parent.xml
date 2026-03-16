@@ -94,11 +94,54 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:background="@null"
-                android:hint="Enter child's roll number"
+                android:hint="e.g. ROLL_NO_11_7B"
                 android:textColorHint="@color/gray_caption"
                 android:textColor="@color/black"
                 android:inputType="text"
                 android:textSize="15sp"/>
+        </LinearLayout>
+
+        <!-- Info hint card -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:background="#F1F8E9"
+            android:orientation="horizontal"
+            android:padding="10dp"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="4dp">
+
+            <TextView
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:text="ℹ"
+                android:textSize="13sp"
+                android:textColor="#2E7D32"
+                android:layout_marginEnd="8dp" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Format: ROLL_NO_&lt;number&gt;_&lt;class&gt;"
+                    android:textColor="#2E7D32"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Example: ROLL_NO_11_7B  (Roll 11, Class 7B)"
+                    android:textColor="#4CAF50"
+                    android:textSize="11sp"
+                    android:layout_marginTop="2dp" />
+            </LinearLayout>
         </LinearLayout>
 
         <TextView

@@ -23,6 +23,7 @@ public class AdminHomeFragment extends Fragment {
     private ShimmerFrameLayout shimmerStats;
     private int statsLoadedCount = 0;
     private TextView tvStatStudents, tvStatClasses, tvStatTeachers, tvStatAttendance;
+    private TextView tvHighlight1, tvHighlight2;
 
     @Nullable
     @Override
@@ -34,11 +35,14 @@ public class AdminHomeFragment extends Fragment {
         tvStatClasses = view.findViewById(R.id.tv_stat_classes);
         tvStatTeachers = view.findViewById(R.id.tv_stat_teachers);
         tvStatAttendance = view.findViewById(R.id.tv_stat_attendance);
+        tvHighlight1 = view.findViewById(R.id.tv_highlight_1);
+        tvHighlight2 = view.findViewById(R.id.tv_highlight_2);
 
         if (shimmerStats != null) shimmerStats.startShimmer();
 
         setupClickListeners(view);
         fetchDashboardStats();
+        fetchHighlights();
 
         return view;
     }
@@ -87,6 +91,19 @@ public class AdminHomeFragment extends Fragment {
                     if (tvStatAttendance != null) tvStatAttendance.setText("0 marked");
                 }
                 checkAllStatsLoaded();
+            });
+    }
+
+    private void fetchHighlights() {
+        FirebaseSource.getInstance().getFirestore().collection("announcements")
+            .orderBy("timestamp", com.google.firebase.firestore.Query.Direction.DESCENDING)
+            .limit(2)
+            .addSnapshotListener((value, error) -> {
+                if (value != null && !value.isEmpty()) {
+                    java.util.List<com.google.firebase.firestore.DocumentSnapshot> docs = value.getDocuments();
+                    if (docs.size() > 0 && tvHighlight1 != null) tvHighlight1.setText(docs.get(0).getString("title"));
+                    if (docs.size() > 1 && tvHighlight2 != null) tvHighlight2.setText(docs.get(1).getString("title"));
+                }
             });
     }
 

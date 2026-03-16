@@ -20,8 +20,10 @@ function getRandomItems(array, count) {
   return shuffled.slice(0, count);
 }
 
+const auth = admin.auth();
+
 async function refineTeachers() {
-  console.log('🧑‍🏫 Refining Teacher Assignments (Multi-Subject & Multi-Class)...');
+  console.log('🧑‍🏫 Refining Teacher Emails & Assignments...');
 
   try {
     const teachersSnapshot = await db.collection('teachers').get();
@@ -32,37 +34,62 @@ async function refineTeachers() {
 
     for (const doc of teachersSnapshot.docs) {
       const teacherData = doc.data();
-      const currentClasses = teacherData.assignedClasses || [];
-      const currentExpertise = teacherData.expertise || "General";
+      const uid = doc.id;
+      const currentName = teacherData.name || "";
+      
+      // 1. Standardize Email: name_surname@edutrack.com
+      // Logic: Strip "sir"/"mam", split by space, join with underscore
+      let parts = currentName.toLowerCase().replace("sir", "").replace("mam", "").trim().split(/\s+/);
+      let newEmail = "";
+      if (parts.length >= 2) {
+          newEmail = `${parts[0]}.${parts[1]}@edutrack.com`;
+      } else {
+          newEmail = `${parts[0]}@edutrack.com`;
+      }
 
-      // 1. Assign multiple subjects (2-3 subjects per teacher)
+      console.log(`Updating ${currentName}: New Email -> ${newEmail}`);
+
+      // 2. Update Firebase Auth
+      try {
+          await auth.updateUser(uid, { email: newEmail });
+      } catch (authError) {
+          console.error(`  ⚠️ Could not update Auth for ${uid}: ${authError.message}`);
+      }
+
+      // 3. Assign multiple subjects (2-3 subjects per teacher)
+      const currentExpertise = teacherData.expertise || "General";
       const teacherSubjects = getRandomItems(subjects, Math.floor(Math.random() * 2) + 2);
       if (!teacherSubjects.includes(currentExpertise) && currentExpertise !== "Class Teacher" && currentExpertise !== "Subject Expert") {
           teacherSubjects.push(currentExpertise);
       }
 
-      // 2. Assign multiple classes (Class teachers get 1 extra class, Subject teachers get 2-4 classes)
+      // 4. Assign multiple classes
+      const currentClasses = teacherData.assignedClasses || [];
       let newClasses = [...currentClasses];
       if (currentClasses.length > 0) {
-          // It's a class teacher or already assigned
           const extraClass = getRandomItems(allClasses.filter(c => !newClasses.includes(c)), 1);
           newClasses = [...newClasses, ...extraClass];
       } else {
-          // It's a subject teacher
           newClasses = getRandomItems(allClasses, Math.floor(Math.random() * 3) + 2);
       }
 
-      // 3. Update Teacher Document
+      // 5. Update Teacher Document
       await doc.ref.update({
+        email: newEmail,
         subjects: teacherSubjects,
         assignedClasses: newClasses,
-        expertise: teacherSubjects.join(", ") // Keep expertise as a summary string for UI compatibility
+        expertise: teacherSubjects.join(", ")
       });
 
-      console.log(`Updated ${teacherData.name}: ${teacherSubjects.join(", ")} | Classes: ${newClasses.join(", ")}`);
+      // 6. Update Users Collection mapping
+      await db.collection('users').doc(uid).update({
+          email: newEmail
+      });
+
+      console.log(`  ✅ Done: ${newEmail} | Subjects: ${teacherSubjects.join(", ")}`);
     }
 
-    console.log('\n✨ Teacher refinement complete! (Multi-subject & Multi-class enabled)');
+    console.log('\n✨ Teacher refinement complete!');
   } catch (error) {
     console.error('❌ Error during teacher refinement:', error);
   }

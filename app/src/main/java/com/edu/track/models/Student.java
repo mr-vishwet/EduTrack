@@ -7,6 +7,8 @@ public class Student {
     private String division;
     private int rollNumber;
     private String parentUid;
+    private String parentEmail;
+    private String parentPhone;
     private boolean isActive;
 
     public Student() {}
@@ -34,6 +36,10 @@ public class Student {
     public void setRollNumber(int rollNumber) { this.rollNumber = rollNumber; }
     public String getParentUid() { return parentUid; }
     public void setParentUid(String parentUid) { this.parentUid = parentUid; }
+    public String getParentEmail() { return parentEmail; }
+    public void setParentEmail(String parentEmail) { this.parentEmail = parentEmail; }
+    public String getParentPhone() { return parentPhone; }
+    public void setParentPhone(String parentPhone) { this.parentPhone = parentPhone; }
     public boolean isActive() { return isActive; }
     public void setActive(boolean active) { isActive = active; }
 }

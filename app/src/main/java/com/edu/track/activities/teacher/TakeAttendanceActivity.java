@@ -195,7 +195,12 @@ public class TakeAttendanceActivity extends AppCompatActivity {
                 .document(today + "_" + standard + division)
                 .set(record)
                 .addOnSuccessListener(aVoid -> {
-                    Toast.makeText(this, "Attendance saved successfully", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Attendance saved successfully!", Toast.LENGTH_SHORT).show();
+                    // Navigate to history so teacher can see the saved attendance
+                    Intent histIntent = new Intent(this, AttendanceHistoryActivity.class);
+                    histIntent.putExtra("standard", standard);
+                    histIntent.putExtra("division", division);
+                    startActivity(histIntent);
                     finish();
                 })
                 .addOnFailureListener(e -> {
