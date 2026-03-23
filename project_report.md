@@ -2,23 +2,21 @@
 # EduTrack: Smart Attendance Tracking System
 
 **Submitted to:**
-Department of Computer Science / Information Technology
-[College Name — Pune Institute of Technology]
-[University Name — Savitribai Phule Pune University]
+Department of Computer Science
+Pune Institute of Technology
+Savitribai Phule Pune University
 
 **Under the guidance of:**
-[Guide Name — Placeholder]
+Prof. Rajesh Kulkarni
 Assistant Professor
 
 **Submitted by:**
-[Student Name — Placeholder]
-Roll No: [Student Roll No]
+Vishwet
+Roll No: PIT-CS-2026-42
 
 ---
 
-## CERTIFICATE
-
-This is to certify that the project entitled **"EduTrack: Smart Attendance Tracking System"** is a bona fide work carried out by **[Student Name]** in partial fulfillment of the requirements for the degree of Bachelor of Technology / Computer Applications from **[College Name]** during the academic year 2025-2026.
+This is to certify that the project entitled **"EduTrack: Smart Attendance Tracking System"** is a bona fide work carried out by **Vishwet** in partial fulfillment of the requirements for the degree of Bachelor of Technology from **Pune Institute of Technology** during the academic year 2025-2026.
 
 The project has been approved and accepted for presentation.
 
@@ -40,14 +38,14 @@ I hereby declare that the project titled **"EduTrack: Smart Attendance Tracking 
 
 <br><br><br>
 
-**[Student Name]**
+**Vishwet**
 Date: 16 March 2026
 
 ---
 
 ## ACKNOWLEDGEMENT
 
-I wish to express my deep sense of gratitude to my guide **[Guide Name]**, for their constant encouragement, technical insights, and valuable suggestions during the project work.
+I wish to express my deep sense of gratitude to my guide **Prof. Rajesh Kulkarni**, for their constant encouragement, technical insights, and valuable suggestions during the project work.
 
 I also thank the Principal and the Head of the Department for providing the necessary facilities, infrastructure, and support required to complete this project.
 

@@ -1,0 +1,304 @@
+﻿To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/9.3.1/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+> Task :app:preBuild UP-TO-DATE
+> Task :app:preDebugBuild UP-TO-DATE
+> Task :app:mergeDebugNativeDebugMetadata NO-SOURCE
+> Task :app:generateDebugResources UP-TO-DATE
+> Task :app:processDebugGoogleServices UP-TO-DATE
+> Task :app:packageDebugResources UP-TO-DATE
+> Task :app:processDebugNavigationResources UP-TO-DATE
+> Task :app:parseDebugLocalResources UP-TO-DATE
+> Task :app:generateDebugRFile UP-TO-DATE
+> Task :app:compileDebugKotlin NO-SOURCE
+> Task :app:javaPreCompileDebug UP-TO-DATE
+
+> Task :app:compileDebugJavaWithJavac
+./gradlew : 
+D:\Vishwet\Edu track ap
+p\EduTrack\app\src\main
+\java\com\edu\track\act
+ivities\AnnouncementsFe
+edActivity.java:249: 
+error: cannot find 
+symbol
+At line:1 char:1
++ ./gradlew 
+assembleDebug 
+--no-daemon 
+--console=plain > 
+build_output.tx ...
++ ~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~
+~~
+    + CategoryInfo     
+         : 
+NotSpecified: (D:\Vi   
+ shwet\Edu ...not find 
+s    ymbol:String) [], 
+Remot    eException
+    + 
+FullyQualifiedErrorId  
+   : NativeCommandError
+ 
+        ImageView 
+btnReset = findViewById
+(R.id.btn_reset_data);
+                       
+                       
+^
+  symbol:   variable 
+btn_reset_data
+  location: class id
+D:\Vishwet\Edu track ap
+p\EduTrack\app\src\main
+\java\com\edu\track\act
+ivities\AnnouncementsFe
+edActivity.java:303: 
+error: cannot find 
+symbol
+                
+Map<String, Object> a 
+= new 
+java.util.HashMap<>();
+                ^
+  symbol:   class Map
+  location: class Annou
+ncementsFeedActivity
+D:\Vishwet\Edu track ap
+p\EduTrack\app\src\main
+\java\com\edu\track\act
+ivities\AnnouncementsFe
+edActivity.java:319: 
+error: cannot find 
+symbol
+                
+Toast.makeText(this, 
+"Data Reset & Seeded 
+Successfully", Toast.LE
+NGTH_SHORT).show();
+                       
+                       
+                       
+    ^
+  symbol:   variable 
+Toast
+  location: class Annou
+ncementsFeedActivity
+D:\Vishwet\Edu track ap
+p\EduTrack\app\src\main
+\java\com\edu\track\act
+ivities\AnnouncementsFe
+edActivity.java:319: 
+error: cannot find 
+symbol
+                
+Toast.makeText(this, 
+"Data Reset & Seeded 
+Successfully", Toast.LE
+NGTH_SHORT).show();
+                ^
+  symbol:   variable 
+Toast
+  location: class Annou
+ncementsFeedActivity
+D:\Vishwet\Edu track ap
+p\EduTrack\app\src\main
+\java\com\edu\track\act
+ivities\AnnouncementsFe
+edActivity.java:322: 
+error: cannot find 
+symbol
+                
+Toast.makeText(this, 
+"Failed to seed data", 
+Toast.LENGTH_SHORT).sho
+w();
+                       
+                       
+              ^
+  symbol:   variable 
+Toast
+  location: class Annou
+ncementsFeedActivity
+D:\Vishwet\Edu track ap
+p\EduTrack\app\src\main
+\java\com\edu\track\act
+ivities\AnnouncementsFe
+edActivity.java:322: 
+error: cannot find 
+symbol
+                
+Toast.makeText(this, 
+"Failed to seed data", 
+Toast.LENGTH_SHORT).sho
+w();
+                ^
+  symbol:   variable 
+Toast
+  location: class Annou
+ncementsFeedActivity
+Note: Some input files 
+use or override a 
+deprecated API.
+Note: Recompile with 
+-Xlint:deprecation for 
+details.
+Note: Some input files 
+use unchecked or 
+unsafe operations.
+Note: Recompile with 
+-Xlint:unchecked for 
+details.
+6 errors
+
+> Task :app:compileDebugJavaWithJavac FAILED
+
+[Incubating] Problems report is available at: file:///D:/Vishwet/Edu%20track%20app/EduTrack/build/reports/problems/problems-report.html
+
+FAILURE: Build failed 
+with an exception.
+
+* What went wrong:
+Execution failed for 
+task ':app:compileDebug
+JavaWithJavac'.
+> Compilation failed; 
+see the compiler 
+output below.
+  Note: Recompile with 
+-Xlint:deprecation for 
+details.
+  D:\Vishwet\Edu track 
+app\EduTrack\app\src\ma
+in\java\com\edu\track\a
+ctivities\Announcements
+FeedActivity.java:249: 
+error: cannot find 
+symbol
+          ImageView 
+btnReset = findViewById
+(R.id.btn_reset_data);
+                       
+                       
+  ^
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 10.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+    symbol:   variable 
+btn_reset_data
+    location: class id
+  D:\Vishwet\Edu track 
+app\EduTrack\app\src\ma
+in\java\com\edu\track\a
+ctivities\Announcements
+FeedActivity.java:303: 
+error: cannot find 
+symbol
+                  
+Map<String, Object> a 
+= new 
+java.util.HashMap<>();
+                  ^
+    symbol:   class Map
+    location: class Ann
+ouncementsFeedActivity
+  D:\Vishwet\Edu track 
+app\EduTrack\app\src\ma
+in\java\com\edu\track\a
+ctivities\Announcements
+FeedActivity.java:319: 
+error: cannot find 
+symbol
+                  
+Toast.makeText(this, 
+"Data Reset & Seeded 
+Successfully", Toast.LE
+NGTH_SHORT).show();
+                       
+                       
+                       
+      ^
+    symbol:   variable 
+Toast
+    location: class Ann
+ouncementsFeedActivity
+  D:\Vishwet\Edu track 
+app\EduTrack\app\src\ma
+in\java\com\edu\track\a
+ctivities\Announcements
+FeedActivity.java:319: 
+error: cannot find 
+symbol
+                  
+Toast.makeText(this, 
+"Data Reset & Seeded 
+Successfully", Toast.LE
+NGTH_SHORT).show();
+                  ^
+    symbol:   variable 
+Toast
+    location: class Ann
+ouncementsFeedActivity
+  D:\Vishwet\Edu track 
+app\EduTrack\app\src\ma
+in\java\com\edu\track\a
+ctivities\Announcements
+FeedActivity.java:322: 
+error: cannot find 
+symbol
+                  
+Toast.makeText(this, 
+"Failed to seed data", 
+Toast.LENGTH_SHORT).sho
+w();
+                       
+                       
+                ^
+    symbol:   variable 
+Toast
+    location: class Ann
+ouncementsFeedActivity
+  D:\Vishwet\Edu track 
+app\EduTrack\app\src\ma
+in\java\com\edu\track\a
+ctivities\Announcements
+FeedActivity.java:322: 
+error: cannot find 
+symbol
+                  
+Toast.makeText(this, 
+"Failed to seed data", 
+Toast.LENGTH_SHORT).sho
+w();
+                  ^
+    symbol:   variable 
+Toast
+    location: class Ann
+ouncementsFeedActivity
+  Note: Recompile with 
+-Xlint:unchecked for 
+details.
+  Note: Some input 
+files use or override 
+a deprecated API.
+  Note: Some input 
+files use unchecked or 
+unsafe operations.
+  6 errors
+
+* Try:
+> Check your code and 
+dependencies to fix 
+the compilation 
+error(s)
+> Run with --scan to 
+get full insights from 
+a Build Scan (powered 
+by Develocity).
+For more on this, please refer to https://docs.gradle.org/9.3.1/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+8 actionable tasks: 1 executed, 7 up-to-date
+BUILD FAILED in 23s

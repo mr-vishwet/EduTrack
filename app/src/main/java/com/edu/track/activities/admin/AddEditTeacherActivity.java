@@ -1,7 +1,9 @@
 package com.edu.track.activities.admin;
 
 import android.os.Bundle;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -11,15 +13,20 @@ import com.edu.track.R;
 import com.edu.track.utils.FirebaseSource;
 import com.google.android.material.button.MaterialButton;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class AddEditTeacherActivity extends AppCompatActivity {
 
     private boolean isEditMode = false;
     private String teacherUid;
-    private EditText etName, etEmail, etExpertise;
+    private EditText etName, etEmail;
+    private Spinner spinnerExpertise;
     private com.google.firebase.firestore.FirebaseFirestore db;
+    private List<String> subjects = new ArrayList<>();
+    private String initialExpertise = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,6 +38,7 @@ public class AddEditTeacherActivity extends AppCompatActivity {
         teacherUid = getIntent().getStringExtra("teacher_uid");
 
         initViews();
+        loadSubjects();
         setupClickListeners();
 
         if (isEditMode && teacherUid != null) {
@@ -41,7 +49,7 @@ public class AddEditTeacherActivity extends AppCompatActivity {
     private void initViews() {
         etName = findViewById(R.id.et_full_name);
         etEmail = findViewById(R.id.et_email);
-        etExpertise = findViewById(R.id.et_expertise);
+        spinnerExpertise = findViewById(R.id.spinner_expertise);
 
         TextView tvTitle = findViewById(R.id.tv_title);
         if (tvTitle != null) tvTitle.setText(isEditMode ? "Edit Teacher" : "Add Teacher");
@@ -50,13 +58,36 @@ public class AddEditTeacherActivity extends AppCompatActivity {
         if (btnAction != null) btnAction.setText(isEditMode ? "UPDATE TEACHER" : "ADD TEACHER");
     }
 
+    private void loadSubjects() {
+        db.collection("subjects").orderBy("name").get().addOnSuccessListener(queryDocumentSnapshots -> {
+            subjects.clear();
+            for (com.google.firebase.firestore.DocumentSnapshot doc : queryDocumentSnapshots) {
+                String name = doc.getString("name");
+                if (name != null) subjects.add(name);
+            }
+            if (subjects.isEmpty()) subjects.add("General");
+            
+            ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, subjects);
+            spinnerExpertise.setAdapter(adapter);
+            
+            if (initialExpertise != null) {
+                int pos = subjects.indexOf(initialExpertise);
+                if (pos >= 0) spinnerExpertise.setSelection(pos);
+            }
+        });
+    }
+
     private void loadTeacherData() {
         FirebaseSource.getInstance().getTeachersRef().document(teacherUid).get().addOnSuccessListener(doc -> {
             if (doc.exists()) {
                 etName.setText(doc.getString("name"));
                 etEmail.setText(doc.getString("email"));
-                etExpertise.setText(doc.getString("expertise"));
-                etEmail.setEnabled(false); // Can't change email usually
+                initialExpertise = doc.getString("expertise");
+                if (subjects.size() > 0 && initialExpertise != null) {
+                    int pos = subjects.indexOf(initialExpertise);
+                    if (pos >= 0) spinnerExpertise.setSelection(pos);
+                }
+                etEmail.setEnabled(false);
             }
         });
     }
@@ -84,7 +115,7 @@ public class AddEditTeacherActivity extends AppCompatActivity {
     private void saveTeacher() {
         String name = etName.getText().toString().trim();
         String email = etEmail.getText().toString().trim();
-        String expertise = etExpertise.getText().toString().trim();
+        String expertise = spinnerExpertise.getSelectedItem().toString();
 
         if (name.isEmpty() || email.isEmpty()) {
             Toast.makeText(this, "Name and Email are required", Toast.LENGTH_SHORT).show();
@@ -111,7 +142,6 @@ public class AddEditTeacherActivity extends AppCompatActivity {
         db.collection("teachers").document(teacherUid)
                 .set(teacherMap, com.google.firebase.firestore.SetOptions.merge())
                 .addOnSuccessListener(aVoid -> {
-                    // Sync with users collection for login routing
                     Map<String, Object> userMap = new HashMap<>();
                     userMap.put("uid", teacherUid);
                     userMap.put("role", "TEACHER");

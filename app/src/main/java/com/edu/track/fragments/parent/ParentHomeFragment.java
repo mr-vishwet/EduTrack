@@ -69,24 +69,13 @@ public class ParentHomeFragment extends Fragment {
     private void loadParentProfile() {
         FirebaseUser user = FirebaseSource.getInstance().getAuth().getCurrentUser();
         if (user != null) {
-            String authEmail = user.getEmail();
-            FirebaseSource.getInstance().getParentsRef().document(user.getUid())
-                .addSnapshotListener((value, error) -> {
-                    if (!isAdded()) return;
-                    if (value != null && value.exists()) {
-                        String parentEmail = value.getString("email");
-                        String lookUpEmail = (parentEmail != null && !parentEmail.isEmpty()) ? parentEmail : authEmail;
-                        if (lookUpEmail != null) {
-                            fetchChildData(lookUpEmail);
-                        }
-                    }
-                });
+            fetchChildData(user.getUid());
         }
     }
 
-    private void fetchChildData(String parentEmail) {
+    private void fetchChildData(String parentUid) {
         FirebaseSource.getInstance().getFirestore().collection("students")
-            .whereEqualTo("parentEmail", parentEmail)
+            .whereEqualTo("parentUid", parentUid)
             .limit(1)
             .get()
             .addOnSuccessListener(queryDocumentSnapshots -> {
@@ -94,19 +83,8 @@ public class ParentHomeFragment extends Fragment {
                 if (!queryDocumentSnapshots.isEmpty()) {
                     processStudentDoc(queryDocumentSnapshots.getDocuments().get(0));
                 } else {
-                    FirebaseSource.getInstance().getFirestore().collection("students")
-                        .whereEqualTo("parentUid", parentEmail)
-                        .limit(1)
-                        .get()
-                        .addOnSuccessListener(snap2 -> {
-                            if (!isAdded()) return;
-                            if (!snap2.isEmpty()) {
-                                processStudentDoc(snap2.getDocuments().get(0));
-                            } else {
-                                if (shimmerContent != null) shimmerContent.stopShimmer();
-                                Toast.makeText(requireContext(), "No child data found", Toast.LENGTH_SHORT).show();
-                            }
-                        });
+                    if (shimmerContent != null) shimmerContent.stopShimmer();
+                    Toast.makeText(requireContext(), "No child data found", Toast.LENGTH_SHORT).show();
                 }
             })
             .addOnFailureListener(e -> {
@@ -115,16 +93,20 @@ public class ParentHomeFragment extends Fragment {
             });
     }
 
+    private String childClassId = "";
+
     private void processStudentDoc(DocumentSnapshot doc) {
         String name = doc.getString("name");
         long roll = doc.getLong("rollNumber") != null ? doc.getLong("rollNumber") : 0;
         String std = doc.getString("standard");
         String div = doc.getString("division");
+        if (std != null && div != null) childClassId = std + div;
 
         if (tvChildName != null) tvChildName.setText(name);
         if (tvChildDetails != null) tvChildDetails.setText("Roll No. " + roll + " · Class " + std + div);
         
         fetchAttendanceStats(doc.getId());
+        fetchAnnouncements();
     }
 
     private void fetchAttendanceStats(String studentId) {
@@ -147,7 +129,7 @@ public class ParentHomeFragment extends Fragment {
                 
                 int percent = total > 0 ? (present * 100 / total) : 0;
                 if (tvStatOverall != null) tvStatOverall.setText(percent + "%");
-                if (tvStatMonth != null) tvStatMonth.setText(present + "/" + total + " Days");
+                if (tvStatMonth != null) tvStatMonth.setText(present + "/" + total);
                 if (pbOverall != null) pbOverall.setProgress(percent);
                 if (pbMonth != null) pbMonth.setProgress(percent);
                 
@@ -166,13 +148,34 @@ public class ParentHomeFragment extends Fragment {
     private void fetchAnnouncements() {
         FirebaseSource.getInstance().getFirestore().collection("announcements")
             .orderBy("timestamp", Query.Direction.DESCENDING)
-            .limit(3)
+            .limit(20) // Fetch more to allow for filtering
             .addSnapshotListener((value, error) -> {
                 if (!isAdded() || value == null) return;
                 if (llAnnouncementsContainer != null) {
                     llAnnouncementsContainer.removeAllViews();
+                    int count = 0;
                     for (DocumentSnapshot doc : value.getDocuments()) {
-                        addAnnouncementItem(doc);
+                        if (count >= 3) break;
+                        
+                        String audience = doc.getString("audience");
+                        String target = doc.getString("targetType");
+                        String cId = doc.getString("classId");
+
+                        // Filtering logic
+                        boolean relevant = true;
+                        if (audience != null && !audience.equalsIgnoreCase("All") && !audience.equalsIgnoreCase("Parents") && !audience.equalsIgnoreCase("Class")) {
+                            relevant = false;
+                        }
+                        if (relevant && "class".equalsIgnoreCase(target)) {
+                            if (cId != null && !cId.equalsIgnoreCase(childClassId)) {
+                                relevant = false;
+                            }
+                        }
+
+                        if (relevant) {
+                            addAnnouncementItem(doc);
+                            count++;
+                        }
                     }
                 }
             });
@@ -194,8 +197,12 @@ public class ParentHomeFragment extends Fragment {
         
         TextView tvCategory = view.findViewById(R.id.tv_announcement_category);
         if (tvCategory != null) {
-            String audience = doc.getString("audience");
-            tvCategory.setText(audience != null ? audience : "General");
+            String cat = doc.getString("category");
+            if (cat == null || cat.equalsIgnoreCase("All")) {
+                cat = doc.getString("audience");
+                if (cat == null) cat = "General";
+            }
+            tvCategory.setText(cat);
         }
 
         llAnnouncementsContainer.addView(view);

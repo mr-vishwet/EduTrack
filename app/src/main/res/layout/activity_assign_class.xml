@@ -154,6 +154,39 @@
                 app:chipSpacingHorizontal="8dp"
                 app:singleSelection="false" />
 
+            <!-- Class Teacher Section -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="24dp"
+                android:layout_marginBottom="24dp"
+                android:background="#E2E8F0" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                android:text="CLASS TEACHER DESIGNATION"
+                android:textColor="@color/gray_caption"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                android:letterSpacing="0.08" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:text="Select one class where this teacher will have attendance marking authority. Choose 'None' if not applicable."
+                android:textColor="@color/gray_caption"
+                android:textSize="12sp" />
+
+            <Spinner
+                android:id="@+id/spinner_class_teacher"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:background="@drawable/bg_input_border"
+                android:paddingHorizontal="14dp" />
+
         </LinearLayout>
     </ScrollView>
 
@@ -177,5 +210,15 @@
             app:backgroundTint="@color/primary_blue"
             app:cornerRadius="8dp" />
     </LinearLayout>
+
+    <ProgressBar
+        android:id="@+id/progress_bar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

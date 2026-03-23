@@ -9,6 +9,7 @@ public class Teacher {
     private String expertise;
     private List<String> subjects;
     private List<String> assignedClasses;
+    private String classTeacher; // e.g., "8A"
     private boolean isActive;
 
     public Teacher() {}
@@ -25,6 +26,8 @@ public class Teacher {
     public void setSubjects(List<String> subjects) { this.subjects = subjects; }
     public List<String> getAssignedClasses() { return assignedClasses; }
     public void setAssignedClasses(List<String> assignedClasses) { this.assignedClasses = assignedClasses; }
+    public String getClassTeacher() { return classTeacher; }
+    public void setClassTeacher(String classTeacher) { this.classTeacher = classTeacher; }
     public boolean isActive() { return isActive; }
     public void setActive(boolean active) { isActive = active; }
 }

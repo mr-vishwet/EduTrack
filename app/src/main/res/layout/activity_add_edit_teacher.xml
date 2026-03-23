@@ -113,16 +113,13 @@
                 android:textSize="13sp"
                 android:textStyle="bold" />
 
-            <EditText
-                android:id="@+id/et_expertise"
+            <Spinner
+                android:id="@+id/spinner_expertise"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
                 android:layout_marginBottom="16dp"
                 android:background="@drawable/bg_input_border"
-                android:hint="e.g. Mathematics"
-                android:inputType="text"
-                android:paddingHorizontal="14dp"
-                android:textSize="15sp" />
+                android:paddingHorizontal="14dp" />
 
         </LinearLayout>
     </ScrollView>

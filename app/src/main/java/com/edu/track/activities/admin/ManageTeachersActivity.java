@@ -28,8 +28,10 @@ public class ManageTeachersActivity extends AppCompatActivity {
     private ShimmerFrameLayout shimmerView;
     private RecyclerView rvTeachers;
     private TeacherAdapter adapter;
+    private com.google.android.material.tabs.TabLayout tabLayout;
     private final List<User> allTeachers = new ArrayList<>();   // full list from DB
     private final List<User> displayList = new ArrayList<>();   // filtered list shown in RV
+    private int currentTab = 0; // 0: All, 1: Class, 2: Subject
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +56,18 @@ public class ManageTeachersActivity extends AppCompatActivity {
         etSearch = findViewById(R.id.et_search);
         shimmerView = findViewById(R.id.shimmer_view_container);
         rvTeachers = findViewById(R.id.rv_teachers);
+        tabLayout = findViewById(R.id.tab_layout_teachers);
+        
+        if (tabLayout != null) {
+            tabLayout.addOnTabSelectedListener(new com.google.android.material.tabs.TabLayout.OnTabSelectedListener() {
+                @Override public void onTabSelected(com.google.android.material.tabs.TabLayout.Tab tab) {
+                    currentTab = tab.getPosition();
+                    applyFilter(etSearch != null ? etSearch.getText().toString() : "");
+                }
+                @Override public void onTabUnselected(com.google.android.material.tabs.TabLayout.Tab tab) {}
+                @Override public void onTabReselected(com.google.android.material.tabs.TabLayout.Tab tab) {}
+            });
+        }
     }
 
     private void setupRecyclerView() {
@@ -114,17 +128,25 @@ public class ManageTeachersActivity extends AppCompatActivity {
 
     private void applyFilter(String query) {
         displayList.clear();
-        if (query == null || query.trim().isEmpty()) {
-            displayList.addAll(allTeachers);
-        } else {
-            String lower = query.toLowerCase().trim();
-            for (User t : allTeachers) {
-                String name = t.getName() != null ? t.getName().toLowerCase() : "";
-                String expertise = t.getExpertise() != null ? t.getExpertise().toLowerCase() : "";
-                String cls = t.getClassTeacher() != null ? t.getClassTeacher().toLowerCase() : "";
-                if (name.contains(lower) || expertise.contains(lower) || cls.contains(lower)) {
-                    displayList.add(t);
-                }
+        String lower = (query == null) ? "" : query.toLowerCase().trim();
+        
+        for (User t : allTeachers) {
+            // Search match
+            String name = t.getName() != null ? t.getName().toLowerCase() : "";
+            String expertise = t.getExpertise() != null ? t.getExpertise().toLowerCase() : "";
+            String cls = t.getClassTeacher() != null ? t.getClassTeacher().toLowerCase() : "";
+            boolean matchesSearch = lower.isEmpty() || name.contains(lower) || expertise.contains(lower) || cls.contains(lower);
+            
+            if (!matchesSearch) continue;
+
+            // Tab match
+            boolean isClassTeacher = t.getClassTeacher() != null && !t.getClassTeacher().isEmpty();
+            if (currentTab == 0) {
+                displayList.add(t);
+            } else if (currentTab == 1 && isClassTeacher) {
+                displayList.add(t);
+            } else if (currentTab == 2 && !isClassTeacher) {
+                displayList.add(t);
             }
         }
         if (adapter != null) adapter.notifyDataSetChanged();

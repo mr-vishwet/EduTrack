@@ -108,8 +108,57 @@
                 android:textColorHint="@color/gray_caption"
                 android:textSize="15sp" />
 
+            <!-- Target Class (Teachers only) -->
+            <LinearLayout
+                android:id="@+id/layout_target_class"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="6dp"
+                    android:text="Select Class"
+                    android:textColor="@color/gray_body"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
+                <Spinner
+                    android:id="@+id/spinner_class"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:layout_marginBottom="20dp"
+                    android:background="@drawable/bg_input_border"
+                    android:paddingHorizontal="14dp" />
+            </LinearLayout>
+
+            <!-- Target Subject (Teachers only) -->
+            <LinearLayout
+                android:id="@+id/layout_target_subject"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="6dp"
+                    android:text="Select Subject"
+                    android:textColor="@color/gray_body"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
+                <Spinner
+                    android:id="@+id/spinner_subject"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:layout_marginBottom="24dp"
+                    android:background="@drawable/bg_input_border"
+                    android:paddingHorizontal="14dp" />
+            </LinearLayout>
+
             <!-- Audience Spinner -->
             <TextView
+                android:id="@+id/tv_audience_label"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="6dp"
@@ -120,6 +169,24 @@
 
             <Spinner
                 android:id="@+id/spinner_audience"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginBottom="24dp"
+                android:background="@drawable/bg_input_border"
+                android:paddingHorizontal="14dp" />
+
+            <!-- Category Spinner -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="6dp"
+                android:text="Category"
+                android:textColor="@color/gray_body"
+                android:textSize="13sp"
+                android:textStyle="bold" />
+
+            <Spinner
+                android:id="@+id/spinner_category"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
                 android:layout_marginBottom="24dp"

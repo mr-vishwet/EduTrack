@@ -45,10 +45,14 @@ public class ReportManager {
         return eduTrackDir;
     }
 
-    public static void exportToCSV(Context context, String fileName, String subFolder, String csvContent, ExportCallback callback) {
+    public static void exportToCSV(Activity activity, String fileName, String subFolder, String csvContent, ExportCallback callback) {
         if (!isExternalStorageWritable()) {
             callback.onFailure(new IOException("External storage is not writable"));
             return;
+        }
+
+        if (csvContent != null && !csvContent.toLowerCase().contains("date range")) {
+            csvContent = "Report Date Range: Complete History (All Time)\n\n" + csvContent;
         }
 
         try {
@@ -70,6 +74,10 @@ public class ReportManager {
         if (!isExternalStorageWritable()) {
             callback.onFailure(new IOException("External storage is not writable"));
             return;
+        }
+
+        if (title != null && !title.contains("to") && !title.contains("(")) {
+            title = title + " (Complete History)";
         }
 
         PdfDocument document = new PdfDocument();
@@ -106,8 +114,20 @@ public class ReportManager {
         titlePaint.setTextSize(22);
         titlePaint.setFakeBoldText(true);
         titlePaint.setColor(Color.parseColor("#1565C0")); // Primary dark blue
-        canvas.drawText(title, xMargin, currentY + 15, titlePaint);
-        currentY += 40;
+        
+        int openParen = title.indexOf("(");
+        if (openParen > 0) {
+            String mainTitle = title.substring(0, openParen).trim();
+            String subTitle = title.substring(openParen).trim();
+            canvas.drawText(mainTitle, xMargin, currentY + 15, titlePaint);
+            currentY += 25;
+            titlePaint.setTextSize(14);
+            canvas.drawText(subTitle, xMargin, currentY + 15, titlePaint);
+            currentY += 30;
+        } else {
+            canvas.drawText(title, xMargin, currentY + 15, titlePaint);
+            currentY += 40;
+        }
 
         // Draw Organization Name & Date
         paint.setTextSize(10);
@@ -140,13 +160,36 @@ public class ReportManager {
         }
 
         int numCols = data.get(0).length;
-        int colWidth = (pageWidth - (2 * xMargin)) / numCols;
+        
+        // Dynamic column weights to prevent wrapping in "Name" fields
+        float[] colWidths = new float[numCols];
+        float totalWeight = 0;
+        float[] weights = new float[numCols];
+        for (int j = 0; j < numCols; j++) {
+            String header = data.get(0)[j].toLowerCase();
+            if (header.contains("name")) weights[j] = 3f;
+            else if (header.contains("roll") || header.contains("%")) weights[j] = 0.8f;
+            else if (header.contains("date") || header.contains("standard")) weights[j] = 1.5f;
+            else weights[j] = 1f;
+            totalWeight += weights[j];
+        }
+        for (int j = 0; j < numCols; j++) {
+            colWidths[j] = ((pageWidth - (2f * xMargin)) * weights[j]) / totalWeight;
+        }
 
         for (int i = 0; i < data.size(); i++) {
             String[] row = data.get(i);
             
+            // Check if any cell in this row has multiple lines
+            int maxLines = 1;
+            for (String cell : row) {
+                if (cell != null && cell.contains("\n")) maxLines = Math.max(maxLines, cell.split("\n").length);
+            }
+            
+            int currentRowHeight = 15 + (maxLines * 15); // Adjust height based on lines (was fixed 25)
+
             // Pagination Check
-            if (currentY + lineSpacing > pageHeight - yMargin) {
+            if (currentY + currentRowHeight > pageHeight - yMargin) {
                 document.finishPage(page);
                 pageNumber++;
                 pageInfo = new PdfDocument.PageInfo.Builder(pageWidth, pageHeight, pageNumber).create();
@@ -160,28 +203,42 @@ public class ReportManager {
                 Paint headerBg = new Paint();
                 headerBg.setColor(Color.parseColor("#1976D2"));
                 headerBg.setStyle(Paint.Style.FILL);
-                canvas.drawRect(xMargin, currentY - 15, pageWidth - xMargin, currentY + 10, headerBg);
+                canvas.drawRect(xMargin, currentY - 15, pageWidth - xMargin, currentY + currentRowHeight - 15, headerBg);
             }
 
             Paint rowPaint = (i == 0) ? headerPaint : paint;
+            float currentX = xMargin;
             for (int j = 0; j < row.length; j++) {
                 String cell = row[j] != null ? row[j] : "";
-                // Handle text wrapping if cell is too long (simplified approximation here)
-                canvas.drawText(cell, xMargin + (j * colWidth) + 5, currentY, rowPaint);
+                String[] lines = cell.split("\n");
+                float colW = colWidths[j];
+                
+                for (int k = 0; k < lines.length; k++) {
+                    String lineText = lines[k];
+                    // Truncate line if it's too long
+                    float maxWidth = colW - 10;
+                    int charactersCount = rowPaint.breakText(lineText, true, maxWidth, null);
+                    if (charactersCount < lineText.length()) {
+                        lineText = lineText.substring(0, Math.max(0, charactersCount - 3)) + "...";
+                    }
+                    
+                    canvas.drawText(lineText, currentX + 5, currentY + 11 + (k * 15), rowPaint);
+                }
                 
                 // Draw vertical borders
-                canvas.drawLine(xMargin + (j * colWidth), currentY - 15, xMargin + (j * colWidth), currentY + 10, borderPaint);
+                canvas.drawLine(currentX, currentY - 15, currentX, currentY + currentRowHeight - 15, borderPaint);
+                currentX += colW;
             }
             // Draw last vertical border
-            canvas.drawLine(pageWidth - xMargin, currentY - 15, pageWidth - xMargin, currentY + 10, borderPaint);
+            canvas.drawLine(pageWidth - xMargin, currentY - 15, pageWidth - xMargin, currentY + currentRowHeight - 15, borderPaint);
             
             // Draw horizontal borders
             if (i == 0) {
                 canvas.drawLine(xMargin, currentY - 15, pageWidth - xMargin, currentY - 15, borderPaint);
             }
-            canvas.drawLine(xMargin, currentY + 10, pageWidth - xMargin, currentY + 10, borderPaint);
+            canvas.drawLine(xMargin, currentY + currentRowHeight - 15, pageWidth - xMargin, currentY + currentRowHeight - 15, borderPaint);
             
-            currentY += lineSpacing;
+            currentY += currentRowHeight;
         }
 
         document.finishPage(page);
@@ -197,6 +254,29 @@ public class ReportManager {
         } finally {
             document.close();
         }
+    }
+
+    public static String formatTwoLineDate(String dateStr) {
+        if (dateStr == null || dateStr.isEmpty()) return "N/A";
+        // Handle yyyy-MM-dd (standard DB format)
+        try {
+            if (dateStr.length() == 10 && dateStr.charAt(4) == '-') {
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+                Date d = sdf.parse(dateStr);
+                return new SimpleDateFormat("dd MMM\nyyyy", Locale.getDefault()).format(d);
+            }
+        } catch (Exception ignored) {}
+        
+        // Handle dd/MM/yyyy (display format in some activities)
+        try {
+            if (dateStr.contains("/")) {
+                SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+                Date d = sdf.parse(dateStr);
+                return new SimpleDateFormat("dd MMM\nyyyy", Locale.getDefault()).format(d);
+            }
+        } catch (Exception ignored) {}
+
+        return dateStr;
     }
 
     private static boolean isExternalStorageWritable() {

@@ -83,6 +83,7 @@
                 android:orientation="horizontal">
 
                 <View
+                    android:id="@+id/view_card_accent"
                     android:layout_width="4dp"
                     android:layout_height="match_parent"
                     android:background="@drawable/bg_teal_border_left" />
@@ -94,12 +95,14 @@
                     android:padding="20dp">
 
                     <FrameLayout
+                        android:id="@+id/fl_attendance_icon_bg"
                         android:layout_width="48dp"
                         android:layout_height="48dp"
                         android:background="@drawable/bg_circle_teal"
                         android:backgroundTint="#E0F7FA">
 
                         <ImageView
+                            android:id="@+id/iv_attendance_icon"
                             android:layout_width="24dp"
                             android:layout_height="24dp"
                             android:layout_gravity="center"
@@ -115,6 +118,7 @@
                         android:orientation="vertical">
 
                         <TextView
+                            android:id="@+id/tv_attendance_card_title"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Take Today's Attendance"

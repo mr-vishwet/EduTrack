@@ -44,7 +44,7 @@ public class TeacherAdapter extends RecyclerView.Adapter<TeacherAdapter.TeacherV
     }
 
     static class TeacherViewHolder extends RecyclerView.ViewHolder {
-        TextView tvInitials, tvName, tvSubject;
+        TextView tvInitials, tvName, tvSubject, tvClassTag;
         MaterialButton btnAssign;
 
         public TeacherViewHolder(@NonNull View itemView) {
@@ -52,6 +52,7 @@ public class TeacherAdapter extends RecyclerView.Adapter<TeacherAdapter.TeacherV
             tvInitials = itemView.findViewById(R.id.tv_teacher_initials);
             tvName = itemView.findViewById(R.id.tv_teacher_name);
             tvSubject = itemView.findViewById(R.id.tv_teacher_subject);
+            tvClassTag = itemView.findViewById(R.id.tv_class_teacher_tag);
             btnAssign = itemView.findViewById(R.id.btn_assign);
         }
 
@@ -70,13 +71,16 @@ public class TeacherAdapter extends RecyclerView.Adapter<TeacherAdapter.TeacherV
             }
             tvInitials.setText(initials);
 
-            // Expertise + classTeacher badge
-            String subject = teacher.getDisplayExpertise();
+            // Expertise and Class Teacher Tag
+            tvSubject.setText(teacher.getDisplayExpertise());
+            
             String classT = teacher.getClassTeacher();
             if (classT != null && !classT.isEmpty()) {
-                subject = subject + "  ·  Class Teacher: " + classT;
+                tvClassTag.setVisibility(View.VISIBLE);
+                tvClassTag.setText("Class Teacher: " + classT);
+            } else {
+                tvClassTag.setVisibility(View.GONE);
             }
-            tvSubject.setText(subject);
 
             btnAssign.setOnClickListener(v -> listener.onAssign(teacher));
         }

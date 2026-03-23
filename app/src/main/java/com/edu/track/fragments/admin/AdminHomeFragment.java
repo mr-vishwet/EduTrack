@@ -116,5 +116,14 @@ public class AdminHomeFragment extends Fragment {
 
         view.findViewById(R.id.btn_action_reports).setOnClickListener(v ->
                 startActivity(new Intent(requireContext(), AdminReportsActivity.class)));
+
+        view.findViewById(R.id.btn_action_announcements).setOnClickListener(v ->
+                startActivity(new Intent(requireContext(), com.edu.track.activities.AnnouncementsFeedActivity.class)));
+
+        View btnPostNew = view.findViewById(R.id.btn_post_new);
+        if (btnPostNew != null) {
+            btnPostNew.setOnClickListener(v ->
+                    startActivity(new Intent(requireContext(), com.edu.track.activities.admin.CreateAnnouncementActivity.class)));
+        }
     }
 }

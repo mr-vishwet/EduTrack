@@ -5,12 +5,14 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import com.edu.track.R;
@@ -20,6 +22,7 @@ import com.edu.track.utils.FirebaseSource;
 import com.facebook.shimmer.ShimmerFrameLayout;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
 import com.google.android.material.button.MaterialButton;
 
@@ -32,12 +35,19 @@ public class TeacherHomeFragment extends Fragment {
 
     private ShimmerFrameLayout shimmerClasses;
     private LinearLayout llClassesContainer, llRecentActivityContainer;
-    private TextView tvAttendanceDate;
+    private TextView tvAttendanceDate, tvAttendanceCardTitle;
     private MaterialButton btnStartAttendance;
+    private ImageView ivAttendanceIcon;
+    private android.widget.FrameLayout flIconBg;
+
     private String primaryClass = "";
     private String primaryStd = "";
     private String primaryDiv = "";
+    private String classTeacher = "";
     private final String todayDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
+
+    /** Realtime listener for recent activity */
+    private ListenerRegistration recentActivityListener;
 
     @Nullable
     @Override
@@ -48,7 +58,10 @@ public class TeacherHomeFragment extends Fragment {
         llClassesContainer = view.findViewById(R.id.ll_classes_container);
         llRecentActivityContainer = view.findViewById(R.id.ll_recent_activity_container);
         tvAttendanceDate = view.findViewById(R.id.tv_attendance_date);
+        tvAttendanceCardTitle = view.findViewById(R.id.tv_attendance_card_title);
         btnStartAttendance = view.findViewById(R.id.btn_start_attendance);
+        ivAttendanceIcon = view.findViewById(R.id.iv_attendance_icon);
+        flIconBg = view.findViewById(R.id.fl_attendance_icon_bg);
 
         if (shimmerClasses != null) shimmerClasses.startShimmer();
 
@@ -57,6 +70,25 @@ public class TeacherHomeFragment extends Fragment {
         setupClickListeners(view);
 
         return view;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        // Refresh attendance card state every time the fragment becomes visible
+        // (e.g. after returning from TakeAttendanceActivity)
+        if (!primaryStd.isEmpty() && !primaryDiv.isEmpty()) {
+            checkAttendanceMarked(primaryStd, primaryDiv);
+        }
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        if (recentActivityListener != null) {
+            recentActivityListener.remove();
+            recentActivityListener = null;
+        }
     }
 
     private void updateDate() {
@@ -74,26 +106,34 @@ public class TeacherHomeFragment extends Fragment {
                     if (!isAdded() || value == null || !value.exists()) return;
 
                     List<String> classes = (List<String>) value.get("assignedClasses");
+                    classTeacher = value.getString("classTeacher");
+                    if (classTeacher == null) classTeacher = "";
+
                     populateClasses(classes);
-                    if (classes != null && !classes.isEmpty()) {
+
+                    // Use classTeacher as the primary class for the main attendance card
+                    if (!classTeacher.isEmpty()) {
+                        primaryClass = classTeacher;
+                        primaryStd = classTeacher.replaceAll("[^0-9]", "");
+                        primaryDiv = classTeacher.replaceAll("[0-9]", "");
+                        checkAttendanceMarked(primaryStd, primaryDiv);
+                    } else if (classes != null && !classes.isEmpty()) {
                         primaryClass = classes.get(0);
                         primaryStd = primaryClass.replaceAll("[^0-9]", "");
                         primaryDiv = primaryClass.replaceAll("[0-9]", "");
-
-                        // Check if today's attendance already marked for primary class
-                        checkAttendanceMarked(primaryStd, primaryDiv);
-                        fetchRecentActivity(classes);
                     }
+
+                    if (classes != null) subscribeRecentActivity(classes);
                 });
         }
     }
 
     /**
-     * Check if attendance for today already exists — if so, update btn_start_attendance
-     * to say "View Attendance" and take the teacher to the history view.
+     * Check if attendance for today already exists.
+     * Updates the card to DONE state (green) if marked, else PENDING state (teal).
      */
     private void checkAttendanceMarked(String std, String div) {
-        if (std.isEmpty() || div.isEmpty() || btnStartAttendance == null) return;
+        if (std.isEmpty() || div.isEmpty()) return;
 
         String docId = todayDate + "_" + std + div;
         FirebaseSource.getInstance().getFirestore()
@@ -102,19 +142,68 @@ public class TeacherHomeFragment extends Fragment {
             .addOnSuccessListener(doc -> {
                 if (!isAdded()) return;
                 if (doc.exists()) {
-                    // Already marked — show "View Attendance" CTA
-                    btnStartAttendance.setText("✓  Today's Attendance Marked — View");
-                    btnStartAttendance.setOnClickListener(v -> {
-                        Intent intent = new Intent(requireContext(), AttendanceHistoryActivity.class);
-                        intent.putExtra("standard", std);
-                        intent.putExtra("division", div);
-                        startActivity(intent);
-                    });
+                    setAttendanceCardDone(std, div);
                 } else {
-                    btnStartAttendance.setText("Mark Attendance");
-                    btnStartAttendance.setOnClickListener(v -> openTakeAttendance(std, div));
+                    setAttendanceCardPending(std, div);
                 }
             });
+    }
+
+    private void setAttendanceCardDone(String std, String div) {
+        if (!isAdded()) return;
+        // Green check icon & label
+        if (ivAttendanceIcon != null)
+            ivAttendanceIcon.setImageResource(R.drawable.ic_check_circle);
+        if (ivAttendanceIcon != null)
+            ivAttendanceIcon.setImageTintList(android.content.res.ColorStateList.valueOf(
+                ContextCompat.getColor(requireContext(), R.color.success_green)));
+        if (flIconBg != null)
+            flIconBg.setBackgroundTintList(android.content.res.ColorStateList.valueOf(0xFFE8F5E9)); // light green
+
+        if (tvAttendanceCardTitle != null)
+            tvAttendanceCardTitle.setText("✓ Attendance Marked");
+        if (tvAttendanceDate != null)
+            tvAttendanceDate.setText("Today's attendance submitted. Tap to view.");
+
+        if (btnStartAttendance != null) {
+            btnStartAttendance.setText("View Attendance");
+            btnStartAttendance.setIconResource(R.drawable.ic_check_circle);
+            btnStartAttendance.setBackgroundTintList(android.content.res.ColorStateList.valueOf(
+                ContextCompat.getColor(requireContext(), R.color.success_green)));
+            btnStartAttendance.setOnClickListener(v -> {
+                Intent intent = new Intent(requireContext(), AttendanceHistoryActivity.class);
+                intent.putExtra("standard", std);
+                intent.putExtra("division", div);
+                intent.putExtra("teacher_filter", true);
+                startActivity(intent);
+            });
+        }
+    }
+
+    private void setAttendanceCardPending(String std, String div) {
+        if (!isAdded()) return;
+        if (ivAttendanceIcon != null) {
+            ivAttendanceIcon.setImageResource(R.drawable.ic_calendar_today);
+            ivAttendanceIcon.setImageTintList(android.content.res.ColorStateList.valueOf(
+                ContextCompat.getColor(requireContext(), R.color.teal)));
+        }
+        if (flIconBg != null)
+            flIconBg.setBackgroundTintList(android.content.res.ColorStateList.valueOf(0xFFE0F7FA)); // light teal
+
+        if (tvAttendanceCardTitle != null)
+            tvAttendanceCardTitle.setText("Take Today's Attendance");
+        if (tvAttendanceDate != null) {
+            String date = new SimpleDateFormat("EEEE, dd MMMM yyyy", Locale.getDefault()).format(new Date());
+            tvAttendanceDate.setText(date);
+        }
+
+        if (btnStartAttendance != null) {
+            btnStartAttendance.setText("Mark Attendance");
+            btnStartAttendance.setIconResource(R.drawable.ic_arrow_forward);
+            btnStartAttendance.setBackgroundTintList(android.content.res.ColorStateList.valueOf(
+                ContextCompat.getColor(requireContext(), R.color.teal)));
+            btnStartAttendance.setOnClickListener(v -> openTakeAttendance(std, div));
+        }
     }
 
     private void openTakeAttendance(String std, String div) {
@@ -143,25 +232,36 @@ public class TeacherHomeFragment extends Fragment {
             String std = classId.replaceAll("[^0-9]", "");
             String div = classId.replaceAll("[0-9]", "");
 
-            // Check per-card if attendance is already marked today
             String docId = todayDate + "_" + classId;
+            boolean isClassTeacherForThis = classId.equalsIgnoreCase(classTeacher);
+
             FirebaseSource.getInstance().getFirestore()
                 .collection("attendance_records").document(docId)
                 .get()
                 .addOnSuccessListener(doc -> {
                     if (!isAdded()) return;
                     if (doc.exists()) {
-                        // Already marked — show a "marked" indicator
-                        TextView tvMark = card.findViewById(R.id.tv_class_name);
-                        tvMark.setText("✓ Std " + classId + " · Done");
+                        tvClass.setText("✓ Std " + classId + " · Done");
+                        // Use green tint for done cards
+                        card.setBackgroundTintList(android.content.res.ColorStateList.valueOf(0xFFE8F5E9));
                         card.setOnClickListener(v -> {
                             Intent intent = new Intent(requireContext(), AttendanceHistoryActivity.class);
                             intent.putExtra("standard", std);
                             intent.putExtra("division", div);
+                            intent.putExtra("teacher_filter", true);
                             startActivity(intent);
                         });
-                    } else {
+                    } else if (isClassTeacherForThis) {
                         card.setOnClickListener(v -> openTakeAttendance(std, div));
+                    } else {
+                        tvClass.setText("Std " + classId + " · View");
+                        card.setOnClickListener(v -> {
+                            Intent intent = new Intent(requireContext(), AttendanceHistoryActivity.class);
+                            intent.putExtra("standard", std);
+                            intent.putExtra("division", div);
+                            intent.putExtra("teacher_filter", true);
+                            startActivity(intent);
+                        });
                     }
                 });
 
@@ -169,32 +269,57 @@ public class TeacherHomeFragment extends Fragment {
         }
     }
 
-    private void fetchRecentActivity(List<String> classes) {
-        if (llRecentActivityContainer == null) return;
-        llRecentActivityContainer.removeAllViews();
+    /** Subscribe to real-time updates for recent activity — only this teacher's classes. */
+    private void subscribeRecentActivity(List<String> classes) {
+        if (llRecentActivityContainer == null || classes == null || classes.isEmpty()) return;
 
-        FirebaseSource.getInstance().getFirestore().collection("attendance_records")
-            .orderBy("timestamp", Query.Direction.DESCENDING)
-            .limit(5)
-            .get()
-            .addOnSuccessListener(queryDocumentSnapshots -> {
-                if (!isAdded()) return;
-                for (DocumentSnapshot doc : queryDocumentSnapshots) {
+        if (recentActivityListener != null) {
+            recentActivityListener.remove();
+        }
+
+        java.util.Calendar cal = java.util.Calendar.getInstance();
+        cal.add(java.util.Calendar.DAY_OF_YEAR, -14);
+        String fromDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(cal.getTime());
+
+        recentActivityListener = FirebaseSource.getInstance().getFirestore()
+            .collection("attendance_records")
+            .whereGreaterThanOrEqualTo("date", fromDate)
+            .orderBy("date", Query.Direction.DESCENDING)
+            .limit(20)
+            .addSnapshotListener((querySnap, error) -> {
+                if (!isAdded() || querySnap == null) return;
+
+                llRecentActivityContainer.removeAllViews();
+                int count = 0;
+                for (DocumentSnapshot doc : querySnap.getDocuments()) {
                     String std = doc.getString("standard");
                     String div = doc.getString("division");
                     if (std == null || div == null) continue;
                     String combined = std + div;
                     if (classes.contains(combined)) {
                         addActivityItem(doc);
+                        count++;
+                        if (count >= 5) break;
                     }
+                }
+
+                if (count == 0) {
+                    View view = LayoutInflater.from(requireContext()).inflate(R.layout.item_teacher_activity, llRecentActivityContainer, false);
+                    TextView tv = view.findViewById(R.id.tv_activity_title);
+                    TextView tvSub = view.findViewById(R.id.tv_activity_subtitle);
+                    if (tv != null) tv.setText("No recent activity");
+                    if (tvSub != null) tvSub.setText("Attendance records will appear here once marked");
+                    llRecentActivityContainer.addView(view);
                 }
             });
     }
 
     private void addActivityItem(DocumentSnapshot doc) {
+        if (!isAdded()) return;
         View view = LayoutInflater.from(requireContext()).inflate(R.layout.item_teacher_activity, llRecentActivityContainer, false);
         TextView tvTitle = view.findViewById(R.id.tv_activity_title);
         TextView tvSubtitle = view.findViewById(R.id.tv_activity_subtitle);
+        TextView tvMyClassBadge = view.findViewById(R.id.tv_my_class_badge);
 
         String std = doc.getString("standard");
         String div = doc.getString("division");
@@ -202,16 +327,29 @@ public class TeacherHomeFragment extends Fragment {
 
         java.util.Map<String, Boolean> statuses = (java.util.Map<String, Boolean>) doc.get("statuses");
         int present = 0;
-        if (statuses != null) for (Boolean p : statuses.values()) if (p) present++;
+        if (statuses != null) for (Boolean p : statuses.values()) if (Boolean.TRUE.equals(p)) present++;
         int total = statuses != null ? statuses.size() : 0;
 
-        tvTitle.setText("Std " + std + div + " · Attendance Marked");
-        tvSubtitle.setText(date + " | " + present + "/" + total + " Present");
+        boolean isToday = todayDate.equals(date);
+        
+        String combined = (std != null ? std : "") + (div != null ? div : "");
+        if (tvMyClassBadge != null) {
+            if (!classTeacher.isEmpty() && classTeacher.equalsIgnoreCase(combined)) {
+                tvMyClassBadge.setVisibility(View.VISIBLE);
+            } else {
+                tvMyClassBadge.setVisibility(View.GONE);
+            }
+        }
+
+        if (tvTitle != null)
+            tvTitle.setText("Std " + std + div + " · Attendance" + (isToday ? " (Today)" : ""));
+        if (tvSubtitle != null)
+            tvSubtitle.setText(date + " | " + present + "/" + total + " Present");
+
         llRecentActivityContainer.addView(view);
     }
 
     private void setupClickListeners(View view) {
-        // btn_start_attendance is wired dynamically in checkAttendanceMarked/loadTeacherData
         // Default handler until class data loads
         if (btnStartAttendance != null) {
             btnStartAttendance.setOnClickListener(v -> {

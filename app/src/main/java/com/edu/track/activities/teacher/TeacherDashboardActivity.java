@@ -110,6 +110,21 @@ public class TeacherDashboardActivity extends AppCompatActivity {
                 }
             });
         }
+
+        View btnNotifications = findViewById(R.id.btn_notifications);
+        if (btnNotifications != null) {
+            btnNotifications.setOnClickListener(v -> {
+                // Open announcement/notification list for teacher
+                Intent intent = new Intent(this, com.edu.track.activities.teacher.AnnouncementsActivity.class);
+                startActivity(intent);
+            });
+        }
+
+        findViewById(R.id.fab_add_announcement).setOnClickListener(v -> {
+            Intent intent = new Intent(this, com.edu.track.activities.admin.CreateAnnouncementActivity.class);
+            intent.putExtra("is_teacher", true);
+            startActivity(intent);
+        });
     }
 
     private void logout() {

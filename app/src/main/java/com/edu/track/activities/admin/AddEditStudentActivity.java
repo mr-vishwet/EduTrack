@@ -21,7 +21,7 @@ public class AddEditStudentActivity extends AppCompatActivity {
 
     private boolean isEditMode = false;
     private String studentId;
-    private android.widget.EditText etName, etRoll, etPassword, etPhone;
+    private android.widget.EditText etName, etRoll, etPassword, etPhone, etDob, etBdayUrl;
     private Spinner spinnerStd, spinnerDiv;
     private com.google.firebase.firestore.FirebaseFirestore db;
 
@@ -48,6 +48,8 @@ public class AddEditStudentActivity extends AppCompatActivity {
         etRoll = findViewById(R.id.et_roll_number);
         etPassword = findViewById(R.id.et_password);
         etPhone = findViewById(R.id.et_phone);
+        etDob = findViewById(R.id.et_dob);
+        etBdayUrl = findViewById(R.id.et_bday_url);
         spinnerStd = findViewById(R.id.spinner_standard);
         spinnerDiv = findViewById(R.id.spinner_division);
 
@@ -59,7 +61,7 @@ public class AddEditStudentActivity extends AppCompatActivity {
     }
 
     private void setupSpinners() {
-        String[] standards = {"8th", "9th", "10th"};
+        String[] standards = {"1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th", "9th", "10th"};
         String[] divisions  = {"A", "B", "C"};
 
         if (spinnerStd != null)
@@ -73,6 +75,8 @@ public class AddEditStudentActivity extends AppCompatActivity {
             if (doc.exists()) {
                 if (etName != null) etName.setText(doc.getString("name"));
                 if (etRoll != null) etRoll.setText(String.valueOf(doc.get("rollNumber")));
+                if (etDob != null) etDob.setText(doc.getString("dob"));
+                if (etBdayUrl != null) etBdayUrl.setText(doc.getString("birthdayCertificateUrl"));
                 
                 String std = doc.getString("standard");
                 String div = doc.getString("division");
@@ -117,6 +121,8 @@ public class AddEditStudentActivity extends AppCompatActivity {
         studentMap.put("rollNumber", roll);
         studentMap.put("standard", std);
         studentMap.put("division", div);
+        studentMap.put("dob", etDob.getText().toString().trim());
+        studentMap.put("birthdayCertificateUrl", etBdayUrl.getText().toString().trim());
         studentMap.put("isActive", true);
 
         if (!isEditMode) {

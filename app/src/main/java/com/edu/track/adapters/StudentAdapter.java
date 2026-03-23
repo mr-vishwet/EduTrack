@@ -18,6 +18,8 @@ public class StudentAdapter extends RecyclerView.Adapter<StudentAdapter.StudentV
     private List<Student> studentListFull; // For filtering
     private final OnStudentClickListener listener;
 
+    private boolean isReadOnly = false;
+
     public interface OnStudentClickListener {
         void onEdit(Student student);
         void onDelete(Student student);
@@ -28,6 +30,11 @@ public class StudentAdapter extends RecyclerView.Adapter<StudentAdapter.StudentV
         this.studentList = studentList;
         this.studentListFull = new ArrayList<>(studentList);
         this.listener = listener;
+    }
+
+    public void setReadOnly(boolean readOnly) {
+        this.isReadOnly = readOnly;
+        notifyDataSetChanged();
     }
 
     public void updateList(List<Student> newList) {
@@ -62,7 +69,7 @@ public class StudentAdapter extends RecyclerView.Adapter<StudentAdapter.StudentV
     @Override
     public void onBindViewHolder(@NonNull StudentViewHolder holder, int position) {
         Student student = studentList.get(position);
-        holder.bind(student, listener);
+        holder.bind(student, listener, isReadOnly);
     }
 
     @Override
@@ -83,7 +90,7 @@ public class StudentAdapter extends RecyclerView.Adapter<StudentAdapter.StudentV
             btnDelete = itemView.findViewById(R.id.btn_delete);
         }
 
-        public void bind(Student student, OnStudentClickListener listener) {
+        public void bind(Student student, OnStudentClickListener listener, boolean isReadOnly) {
             // Extract roll number from ID (e.g., ROLL_1_1A -> 1)
             String roll = "0";
             if (student.getStudentId() != null && student.getStudentId().startsWith("ROLL_")) {
@@ -98,8 +105,16 @@ public class StudentAdapter extends RecyclerView.Adapter<StudentAdapter.StudentV
             tvName.setText(student.getName());
             tvDetails.setText("Class " + student.getStandard() + student.getDivision());
 
-            btnEdit.setOnClickListener(v -> listener.onEdit(student));
-            btnDelete.setOnClickListener(v -> listener.onDelete(student));
+            if (isReadOnly) {
+                btnEdit.setVisibility(View.GONE);
+                btnDelete.setVisibility(View.GONE);
+            } else {
+                btnEdit.setVisibility(View.VISIBLE);
+                btnDelete.setVisibility(View.VISIBLE);
+                btnEdit.setOnClickListener(v -> listener.onEdit(student));
+                btnDelete.setOnClickListener(v -> listener.onDelete(student));
+            }
+            
             itemView.setOnClickListener(v -> listener.onItemClick(student));
         }
     }

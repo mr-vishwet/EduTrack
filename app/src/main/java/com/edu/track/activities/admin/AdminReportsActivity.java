@@ -117,14 +117,23 @@ public class AdminReportsActivity extends AppCompatActivity {
 
             if (isPdf) {
                 List<String[]> data = new ArrayList<>();
-                data.add(new String[] { "Class", "Avg Attendance %", "Total Records" });
+                data.add(new String[] { "Standard", "Section", "Avg Attendance %", "Total Records" });
                 for (Map.Entry<String, List<Double>> entry : classAttendanceMap.entrySet()) {
                     double sum = 0;
                     for (Double d : entry.getValue())
                         sum += d;
                     double avg = sum / entry.getValue().size();
+                    
+                    // Simple extraction from Combined ID (8A)
+                    String key = entry.getKey();
+                    String std = key.replaceAll("[^0-9]", "");
+                    String div = key.replaceAll("[0-9]", "");
+                    if (std.isEmpty()) std = key;
+                    if (div.isEmpty()) div = "All";
+
                     data.add(new String[] {
-                            entry.getKey(),
+                            std,
+                            div,
                             String.format("%.2f%%", avg),
                             String.valueOf(entry.getValue().size())
                     });
@@ -143,13 +152,21 @@ public class AdminReportsActivity extends AppCompatActivity {
                             }
                         });
             } else {
-                StringBuilder csv = new StringBuilder("Class,Average Attendance %,Total Records\n");
+                StringBuilder csv = new StringBuilder("Standard,Section,Average Attendance %,Total Records\n");
                 for (Map.Entry<String, List<Double>> entry : classAttendanceMap.entrySet()) {
                     double sum = 0;
                     for (Double d : entry.getValue())
                         sum += d;
                     double avg = sum / entry.getValue().size();
-                    csv.append(entry.getKey()).append(",")
+                    
+                    String key = entry.getKey();
+                    String std = key.replaceAll("[^0-9]", "");
+                    String div = key.replaceAll("[0-9]", "");
+                    if (std.isEmpty()) std = key;
+                    if (div.isEmpty()) div = "All";
+
+                    csv.append(std).append(",")
+                            .append(div).append(",")
                             .append(String.format("%.2f", avg)).append(",")
                             .append(entry.getValue().size()).append("\n");
                 }

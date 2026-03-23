@@ -17,12 +17,24 @@
         app:navigationIcon="@drawable/ic_arrow_back"
         app:navigationIconTint="@color/white"
         app:title="Student Report"
-        app:titleTextColor="@color/white" />
+        app:titleTextColor="@color/white">
+
+        <ImageView
+            android:id="@+id/btn_export"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_gravity="end"
+            android:layout_marginEnd="16dp"
+            android:padding="8dp"
+            android:src="@drawable/ic_download"
+            app:tint="@color/white" />
+
+    </com.google.android.material.appbar.MaterialToolbar>
 
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        app:layout_constraintBottom_toTopOf="@id/footer_export"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@id/toolbar">
 
         <LinearLayout
@@ -436,43 +448,5 @@
 
         </LinearLayout>
     </ScrollView>
-
-    <!-- Footer buttons -->
-    <LinearLayout
-        android:id="@+id/footer_export"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/white"
-        android:elevation="8dp"
-        android:orientation="horizontal"
-        android:padding="16dp"
-        app:layout_constraintBottom_toBottomOf="parent">
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_export_csv"
-            style="?attr/materialButtonOutlinedStyle"
-            android:layout_width="0dp"
-            android:layout_height="52dp"
-            android:layout_marginEnd="8dp"
-            android:layout_weight="1"
-            android:text="Export CSV"
-            android:textAllCaps="false"
-            android:textColor="@color/teal"
-            android:textStyle="bold"
-            app:cornerRadius="8dp"
-            app:strokeColor="@color/teal" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_export_pdf"
-            android:layout_width="0dp"
-            android:layout_height="52dp"
-            android:layout_weight="1.5"
-            android:text="Export PDF"
-            android:textAllCaps="false"
-            android:textColor="@color/white"
-            android:textStyle="bold"
-            app:backgroundTint="@color/primary_blue"
-            app:cornerRadius="8dp" />
-    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

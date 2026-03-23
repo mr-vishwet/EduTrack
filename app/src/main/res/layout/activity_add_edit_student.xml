@@ -111,6 +111,52 @@
                 android:textColorHint="@color/gray_caption"
                 android:textSize="15sp" />
 
+            <!-- Date of Birth -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="6dp"
+                android:text="Date of Birth"
+                android:textColor="@color/gray_body"
+                android:textSize="13sp"
+                android:textStyle="bold" />
+
+            <EditText
+                android:id="@+id/et_dob"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginBottom="16dp"
+                android:background="@drawable/bg_input_border"
+                android:hint="DD/MM/YYYY"
+                android:inputType="date"
+                android:paddingHorizontal="14dp"
+                android:textColor="@color/black"
+                android:textColorHint="@color/gray_caption"
+                android:textSize="15sp" />
+
+            <!-- Birthday Certificate URL -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="6dp"
+                android:text="Birthday Certificate URL"
+                android:textColor="@color/gray_body"
+                android:textSize="13sp"
+                android:textStyle="bold" />
+
+            <EditText
+                android:id="@+id/et_bday_url"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginBottom="16dp"
+                android:background="@drawable/bg_input_border"
+                android:hint="HTTPS://..."
+                android:inputType="textUri"
+                android:paddingHorizontal="14dp"
+                android:textColor="@color/black"
+                android:textColorHint="@color/gray_caption"
+                android:textSize="15sp" />
+
             <!-- Standard -->
             <TextView
                 android:layout_width="wrap_content"

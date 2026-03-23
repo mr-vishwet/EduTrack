@@ -61,7 +61,7 @@ public class ParentProfileFragment extends Fragment {
 
             // Fetch linked child
             FirebaseSource.getInstance().getFirestore().collection("students")
-                .whereEqualTo("parentEmail", email).limit(1).get()
+                .whereEqualTo("parentUid", uid).limit(1).get()
                 .addOnSuccessListener(snap -> {
                     if (isAdded() && tvLinkedChild != null) {
                         if (!snap.isEmpty()) {
@@ -71,21 +71,7 @@ public class ParentProfileFragment extends Fragment {
                             String div = doc.getString("division");
                             tvLinkedChild.setText(name + " (Std " + std + div + ")");
                         } else {
-                            FirebaseSource.getInstance().getFirestore().collection("students")
-                                .whereEqualTo("parentUid", email).limit(1).get()
-                                .addOnSuccessListener(snap2 -> {
-                                    if (isAdded() && tvLinkedChild != null) {
-                                        if (!snap2.isEmpty()) {
-                                            com.google.firebase.firestore.QueryDocumentSnapshot doc = snap2.iterator().next();
-                                            String name = doc.getString("name");
-                                            String std = doc.getString("standard");
-                                            String div = doc.getString("division");
-                                            tvLinkedChild.setText(name + " (Std " + std + div + ")");
-                                        } else {
-                                            tvLinkedChild.setText("No child linked");
-                                        }
-                                    }
-                                });
+                            tvLinkedChild.setText("No child linked");
                         }
                     }
                 });

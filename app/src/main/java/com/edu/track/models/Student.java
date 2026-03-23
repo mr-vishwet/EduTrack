@@ -9,6 +9,8 @@ public class Student {
     private String parentUid;
     private String parentEmail;
     private String parentPhone;
+    private String dob;
+    private String birthdayCertificateUrl;
     private boolean isActive;
 
     public Student() {}
@@ -40,6 +42,10 @@ public class Student {
     public void setParentEmail(String parentEmail) { this.parentEmail = parentEmail; }
     public String getParentPhone() { return parentPhone; }
     public void setParentPhone(String parentPhone) { this.parentPhone = parentPhone; }
+    public String getDob() { return dob; }
+    public void setDob(String dob) { this.dob = dob; }
+    public String getBirthdayCertificateUrl() { return birthdayCertificateUrl; }
+    public void setBirthdayCertificateUrl(String birthdayCertificateUrl) { this.birthdayCertificateUrl = birthdayCertificateUrl; }
     public boolean isActive() { return isActive; }
     public void setActive(boolean active) { isActive = active; }
 }

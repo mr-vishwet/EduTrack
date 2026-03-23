@@ -92,84 +92,13 @@
             android:scrollbars="none">
 
             <LinearLayout
-                android:id="@+id/chip_group"
+                android:id="@+id/chip_container"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical"
                 android:orientation="horizontal">
 
-                <!-- "All Classes" chip — selected by default -->
-                <TextView
-                    android:id="@+id/chip_all"
-                    android:layout_width="wrap_content"
-                    android:layout_height="34dp"
-                    android:layout_marginEnd="8dp"
-                    android:background="@drawable/bg_chip_selected"
-                    android:gravity="center"
-                    android:paddingHorizontal="16dp"
-                    android:text="All Classes"
-                    android:textColor="@color/white"
-                    android:textSize="13sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/chip_8a"
-                    android:layout_width="wrap_content"
-                    android:layout_height="34dp"
-                    android:layout_marginEnd="8dp"
-                    android:background="@drawable/bg_chip_unselected"
-                    android:gravity="center"
-                    android:paddingHorizontal="16dp"
-                    android:text="8th A"
-                    android:textColor="@color/gray_body"
-                    android:textSize="13sp" />
-
-                <TextView
-                    android:id="@+id/chip_8b"
-                    android:layout_width="wrap_content"
-                    android:layout_height="34dp"
-                    android:layout_marginEnd="8dp"
-                    android:background="@drawable/bg_chip_unselected"
-                    android:gravity="center"
-                    android:paddingHorizontal="16dp"
-                    android:text="8th B"
-                    android:textColor="@color/gray_body"
-                    android:textSize="13sp" />
-
-                <TextView
-                    android:id="@+id/chip_9a"
-                    android:layout_width="wrap_content"
-                    android:layout_height="34dp"
-                    android:layout_marginEnd="8dp"
-                    android:background="@drawable/bg_chip_unselected"
-                    android:gravity="center"
-                    android:paddingHorizontal="16dp"
-                    android:text="9th A"
-                    android:textColor="@color/gray_body"
-                    android:textSize="13sp" />
-
-                <TextView
-                    android:id="@+id/chip_9b"
-                    android:layout_width="wrap_content"
-                    android:layout_height="34dp"
-                    android:layout_marginEnd="8dp"
-                    android:background="@drawable/bg_chip_unselected"
-                    android:gravity="center"
-                    android:paddingHorizontal="16dp"
-                    android:text="9th B"
-                    android:textColor="@color/gray_body"
-                    android:textSize="13sp" />
-
-                <TextView
-                    android:id="@+id/chip_10a"
-                    android:layout_width="wrap_content"
-                    android:layout_height="34dp"
-                    android:background="@drawable/bg_chip_unselected"
-                    android:gravity="center"
-                    android:paddingHorizontal="16dp"
-                    android:text="10th A"
-                    android:textColor="@color/gray_body"
-                    android:textSize="13sp" />
+                <!-- Dynamic chips will be added here -->
             </LinearLayout>
         </HorizontalScrollView>
 

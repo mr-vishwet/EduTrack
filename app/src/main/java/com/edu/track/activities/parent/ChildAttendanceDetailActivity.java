@@ -80,25 +80,16 @@ public class ChildAttendanceDetailActivity extends AppCompatActivity {
             // Fetch student based on logged-in parent
             com.google.firebase.auth.FirebaseUser user = FirebaseSource.getInstance().getAuth().getCurrentUser();
             if (user != null) {
-                String email = user.getEmail();
-                if (email != null) {
-                    db.collection("students").whereEqualTo("parentEmail", email).limit(1).get()
-                        .addOnSuccessListener(snap -> {
-                            if (!snap.isEmpty()) {
-                                processStudentDoc(snap.iterator().next());
-                            } else {
-                                db.collection("students").whereEqualTo("parentUid", email).limit(1).get()
-                                    .addOnSuccessListener(snap2 -> {
-                                        if (!snap2.isEmpty()) {
-                                            processStudentDoc(snap2.iterator().next());
-                                        } else {
-                                            Toast.makeText(this, "No child found for this parent", Toast.LENGTH_SHORT).show();
-                                            finish();
-                                        }
-                                    });
-                            }
-                        });
-                }
+                String uid = user.getUid();
+                db.collection("students").whereEqualTo("parentUid", uid).limit(1).get()
+                    .addOnSuccessListener(snap -> {
+                        if (!snap.isEmpty()) {
+                            processStudentDoc(snap.iterator().next());
+                        } else {
+                            Toast.makeText(this, "No child found for this parent", Toast.LENGTH_SHORT).show();
+                            finish();
+                        }
+                    });
             }
         }
     }
@@ -180,37 +171,47 @@ public class ChildAttendanceDetailActivity extends AppCompatActivity {
             return;
         }
 
+        String fileName = (student != null ? student.getName().replace(" ", "_") : "Child") + "_Attendance";
+
         if (isPdf) {
             List<String[]> data = new ArrayList<>();
-            data.add(new String[]{"Date", "Status", "Class Info"});
+            data.add(new String[]{"Date", "Status", "Standard", "Section"});
             for (AttendanceRecord r : childRecords) {
                 boolean p = Boolean.TRUE.equals(r.getStatuses().get(studentId));
                 data.add(new String[]{
-                    r.getDate(),
+                    ReportManager.formatTwoLineDate(r.getDate()),
                     p ? "Present" : "Absent",
-                    "Standard " + r.getStandard() + r.getDivision()
+                    r.getStandard() != null ? r.getStandard() : "N/A",
+                    r.getDivision() != null ? r.getDivision() : "N/A"
                 });
             }
-            String fileName = (student != null ? student.getName().replace(" ", "_") : "Child") + "_Attendance";
-            ReportManager.exportToPDF(this, "Student Attendance History", fileName, "Parent", data, new ReportManager.ExportCallback() {
-                @Override public void onSuccess(String filePath) { ReportManager.showExportToast(ChildAttendanceDetailActivity.this, filePath); }
+            String docTitle = (student != null ? student.getName() : "Student") + " - Attendance";
+            ReportManager.exportToPDF(this, docTitle, fileName, "Parent", data, new ReportManager.ExportCallback() {
+                @Override public void onSuccess(String filePath) { ReportManager.showExportSuccessDialog(ChildAttendanceDetailActivity.this, filePath); }
                 @Override public void onFailure(Exception e) { Toast.makeText(ChildAttendanceDetailActivity.this, "PDF Download failed", Toast.LENGTH_SHORT).show(); }
             });
         } else {
-            StringBuilder csv = new StringBuilder("Date,Attendance Status,Class Info\n");
+            StringBuilder csv = new StringBuilder();
+            csv.append("Exported Student Report\n");
+            if (student != null) {
+                csv.append("Student Name:,").append(student.getName()).append("\n");
+                csv.append("Class:,").append(student.getStandard() != null ? student.getStandard() : "N/A").append(" ").append(student.getDivision() != null ? student.getDivision() : "N/A").append("\n\n");
+            }
+            csv.append("Date,Attendance Status,Standard,Section\n");
+            
             for (AttendanceRecord r : childRecords) {
                 boolean p = Boolean.TRUE.equals(r.getStatuses().get(studentId));
                 csv.append(r.getDate()).append(",")
                    .append(p ? "Present" : "Absent").append(",")
-                   .append("Standard ").append(r.getStandard()).append(r.getDivision()).append("\n");
+                   .append(r.getStandard() != null ? r.getStandard() : "N/A").append(",")
+                   .append(r.getDivision() != null ? r.getDivision() : "N/A").append("\n");
             }
 
-            String fileName = (student != null ? student.getName().replace(" ", "_") : "Child") + "_Attendance";
             ReportManager.exportToCSV(this, fileName, "Parent", csv.toString(), new ReportManager.ExportCallback() {
                 @Override
-            public void onSuccess(String filePath) {
-                ReportManager.showExportSuccessDialog(ChildAttendanceDetailActivity.this, filePath);
-            }
+                public void onSuccess(String filePath) {
+                    ReportManager.showExportSuccessDialog(ChildAttendanceDetailActivity.this, filePath);
+                }
 
                 @Override
                 public void onFailure(Exception e) {

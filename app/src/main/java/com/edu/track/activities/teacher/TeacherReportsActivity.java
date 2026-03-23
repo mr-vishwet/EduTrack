@@ -158,9 +158,9 @@ public class TeacherReportsActivity extends AppCompatActivity {
             for (AttendanceRecord r : teacherRecords) {
                 double p = r.getTotalCount() > 0 ? (double) r.getPresentCount() / r.getTotalCount() * 100 : 0;
                 data.add(new String[]{
-                    r.getDate(),
-                    r.getStandard(),
-                    r.getDivision(),
+                    ReportManager.formatTwoLineDate(r.getDate()),
+                    r.getStandard() != null ? r.getStandard() : "N/A",
+                    r.getDivision() != null ? r.getDivision() : "N/A",
                     r.getPresentCount() + "/" + r.getTotalCount(),
                     String.format("%.1f%%", p)
                 });
@@ -175,8 +175,8 @@ public class TeacherReportsActivity extends AppCompatActivity {
             for (AttendanceRecord r : teacherRecords) {
                 double p = r.getTotalCount() > 0 ? (double) r.getPresentCount() / r.getTotalCount() * 100 : 0;
                 csv.append(r.getDate()).append(",")
-                   .append(r.getStandard()).append(",")
-                   .append(r.getDivision()).append(",")
+                   .append(r.getStandard() != null ? r.getStandard() : "N/A").append(",")
+                   .append(r.getDivision() != null ? r.getDivision() : "N/A").append(",")
                    .append(r.getPresentCount()).append(",")
                    .append(r.getTotalCount()).append(",")
                    .append(String.format("%.2f", p)).append("\n");

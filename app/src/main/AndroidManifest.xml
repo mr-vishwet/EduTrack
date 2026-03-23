@@ -75,6 +75,8 @@
                   android:screenOrientation="portrait" />
         <activity android:name=".activities.AnnouncementsFeedActivity"
                   android:screenOrientation="portrait" />
+        <activity android:name=".activities.AnnouncementDetailActivity"
+                  android:screenOrientation="portrait" />
 
         <!-- Teacher Activities -->
         <activity android:name=".activities.teacher.TeacherDashboardActivity"
@@ -84,6 +86,8 @@
         <activity android:name=".activities.teacher.AttendanceHistoryActivity"
                   android:screenOrientation="portrait" />
         <activity android:name=".activities.teacher.TeacherReportsActivity"
+                  android:screenOrientation="portrait" />
+        <activity android:name=".activities.teacher.AnnouncementsActivity"
                   android:screenOrientation="portrait" />
 
         <!-- Parent Activities -->

@@ -17,21 +17,28 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.edu.track.R;
+import com.edu.track.activities.admin.AddEditStudentActivity;
+import com.edu.track.activities.admin.DetailedStudentReportActivity;
 import com.edu.track.utils.FirebaseSource;
+import com.edu.track.utils.ReportManager;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class ManageStudentsActivity extends AppCompatActivity {
 
     private EditText etSearch;
+    private android.widget.LinearLayout chipContainer;
+    private String selectedClassId = "ALL";
     private FloatingActionButton fabAdd;
-    private TextView chipAll, chip8a, chip8b, chip9a, chip9b, chip10a;
-    private TextView currentChip;
 
     // Data handling
     private RecyclerView rvStudents;
     private com.edu.track.adapters.StudentAdapter adapter;
-    private java.util.List<com.edu.track.models.Student> studentList = new java.util.ArrayList<>();
-    private com.google.firebase.firestore.FirebaseFirestore db;
+    private List<com.edu.track.models.Student> studentList = new ArrayList<>();
+    private FirebaseFirestore db;
     private com.facebook.shimmer.ShimmerFrameLayout shimmerView;
     private android.widget.ProgressBar progressLoadMore;
 
@@ -63,33 +70,110 @@ public class ManageStudentsActivity extends AppCompatActivity {
         fixedDivision = getIntent().getStringExtra("division");
 
         initViews();
+        loadClasses();
         setupClickListeners();
         setupSearch();
         setupRecyclerView();
         
-        fetchStudents(null); // Initial load
+        fetchStudents(null);
     }
 
     private void initViews() {
         etSearch  = findViewById(R.id.et_search);
         fabAdd    = findViewById(R.id.fab_add_student);
-        chipAll   = findViewById(R.id.chip_all);
-        chip8a    = findViewById(R.id.chip_8a);
-        chip8b    = findViewById(R.id.chip_8b);
-        chip9a    = findViewById(R.id.chip_9a);
-        chip9b    = findViewById(R.id.chip_9b);
-        chip10a   = findViewById(R.id.chip_10a);
+        chipContainer = findViewById(R.id.chip_container);
         
         rvStudents = findViewById(R.id.rv_students);
         shimmerView = findViewById(R.id.shimmer_view_container);
         progressLoadMore = findViewById(R.id.progress_load_more);
 
-        currentChip = chipAll;
-
         if (fixedStandard != null && fixedDivision != null) {
             View svChips = findViewById(R.id.sv_chips);
             if (svChips != null) svChips.setVisibility(View.GONE);
         }
+    }
+
+    private void loadClasses() {
+        if (fixedStandard != null) return; // Don't show chips if already filtered
+
+        db.collection("classes").get().addOnSuccessListener(snapshots -> {
+            chipContainer.removeAllViews();
+            
+            // Add "All Classes"
+            addFilterChip("All Classes", "ALL");
+            
+            List<com.google.firebase.firestore.DocumentSnapshot> sortedDocs = new ArrayList<>(snapshots.getDocuments());
+            sortedDocs.sort((d1, d2) -> {
+                String s1 = d1.getString("standard");
+                String s2 = d2.getString("standard");
+                String v1 = d1.getString("division");
+                String v2 = d2.getString("division");
+                
+                int n1 = extractNumber(s1);
+                int n2 = extractNumber(s2);
+                
+                if (n1 != n2) return Integer.compare(n1, n2);
+                if (v1 != null && v2 != null) return v1.compareTo(v2);
+                return 0;
+            });
+            
+            for (com.google.firebase.firestore.DocumentSnapshot doc : sortedDocs) {
+                String std = doc.getString("standard");
+                String div = doc.getString("division");
+                if (std != null && div != null) {
+                    addFilterChip(std + (std.matches("\\d+") ? "th " : " ") + div, std + div);
+                }
+            }
+        });
+    }
+
+    private int extractNumber(String s) {
+        if (s == null) return 0;
+        String digits = s.replaceAll("\\D", "");
+        return digits.isEmpty() ? 0 : Integer.parseInt(digits);
+    }
+
+    private void addFilterChip(String label, String classId) {
+        TextView chip = new TextView(this);
+        android.widget.LinearLayout.LayoutParams params = new android.widget.LinearLayout.LayoutParams(
+                android.widget.LinearLayout.LayoutParams.WRAP_CONTENT,
+                (int) (34 * getResources().getDisplayMetrics().density));
+        params.setMargins(0, 0, (int) (8 * getResources().getDisplayMetrics().density), 0);
+        chip.setLayoutParams(params);
+        chip.setGravity(android.view.Gravity.CENTER);
+        chip.setPadding((int) (16 * getResources().getDisplayMetrics().density), 0, 
+                        (int) (16 * getResources().getDisplayMetrics().density), 0);
+        chip.setText(label);
+        chip.setTextSize(13);
+        chip.setTag(classId);
+
+        if (selectedClassId.equals(classId)) {
+            chip.setBackground(ContextCompat.getDrawable(this, R.drawable.bg_chip_selected));
+            chip.setTextColor(ContextCompat.getColor(this, R.color.white));
+            chip.setTypeface(null, android.graphics.Typeface.BOLD);
+        } else {
+            chip.setBackground(ContextCompat.getDrawable(this, R.drawable.bg_chip_unselected));
+            chip.setTextColor(ContextCompat.getColor(this, R.color.gray_body));
+            chip.setTypeface(null, android.graphics.Typeface.NORMAL);
+        }
+
+        chip.setOnClickListener(v -> {
+            selectedClassId = (String) v.getTag();
+            for (int i = 0; i < chipContainer.getChildCount(); i++) {
+                View child = chipContainer.getChildAt(i);
+                if (child instanceof TextView) {
+                    boolean isSelected = selectedClassId.equals(child.getTag());
+                    child.setBackground(ContextCompat.getDrawable(this, isSelected ? R.drawable.bg_chip_selected : R.drawable.bg_chip_unselected));
+                    ((TextView) child).setTextColor(ContextCompat.getColor(this, isSelected ? R.color.white : R.color.gray_body));
+                    ((TextView) child).setTypeface(null, isSelected ? android.graphics.Typeface.BOLD : android.graphics.Typeface.NORMAL);
+                }
+            }
+            isLastPage = false;
+            lastVisible = null;
+            fetchStudents(null);
+        });
+
+        chipContainer.addView(chip);
     }
 
     private void setupRecyclerView() {
@@ -142,6 +226,21 @@ public class ManageStudentsActivity extends AppCompatActivity {
         });
     }
 
+    private void showDeleteConfirm(com.edu.track.models.Student student) {
+        new AlertDialog.Builder(this)
+                .setTitle("Delete Student")
+                .setMessage("Remove " + student.getName() + " from the system?")
+                .setPositiveButton("Delete", (d, w) -> {
+                    db.collection("students").document(student.getStudentId()).delete();
+                    Toast.makeText(this, "Student deleted", Toast.LENGTH_SHORT).show();
+                    // Real-time listener would handle this normally, but for now manual remove
+                    studentList.remove(student);
+                    adapter.notifyDataSetChanged();
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
+    }
+
     private void fetchStudents(com.google.firebase.firestore.DocumentSnapshot startAfter) {
         isLoading = true;
         if (startAfter == null) {
@@ -157,15 +256,16 @@ public class ManageStudentsActivity extends AppCompatActivity {
                 .orderBy("name")
                 .limit(PAGE_SIZE);
 
-        // Apply standard and division filter from chips or intent
-        String selectedStandard = fixedStandard != null ? fixedStandard : getStandardFromChip(currentChip);
-        String selectedDivision = fixedDivision != null ? fixedDivision : getDivisionFromChip(currentChip);
-        
-        if (!selectedStandard.equals("ALL")) {
-            query = query.whereEqualTo("standard", selectedStandard);
-            if (!selectedDivision.equals("ALL")) {
-                query = query.whereEqualTo("division", selectedDivision);
+        if (fixedStandard != null) {
+            query = query.whereEqualTo("standard", fixedStandard);
+            if (fixedDivision != null) {
+                query = query.whereEqualTo("division", fixedDivision);
             }
+        } else if (!selectedClassId.equals("ALL")) {
+            // classId is std+div, e.g. "8A"
+            String std = selectedClassId.replaceAll("[^0-9]", "");
+            String div = selectedClassId.replaceAll("[^A-Za-z]", "");
+            query = query.whereEqualTo("standard", std).whereEqualTo("division", div);
         }
 
         if (startAfter != null) {
@@ -198,19 +298,6 @@ public class ManageStudentsActivity extends AppCompatActivity {
         });
     }
 
-    private String getStandardFromChip(TextView chip) {
-        if (chip == chip8a || chip == chip8b) return "8";
-        if (chip == chip9a || chip == chip9b) return "9";
-        if (chip == chip10a) return "10";
-        return "ALL";
-    }
-
-    private String getDivisionFromChip(TextView chip) {
-        if (chip == chip8a || chip == chip9a || chip == chip10a) return "A";
-        if (chip == chip8b || chip == chip9b) return "B";
-        return "ALL";
-    }
-
     private void setupClickListeners() {
         ImageView btnBack = findViewById(R.id.btn_back);
         if (btnBack != null) btnBack.setOnClickListener(v -> onBackPressed());
@@ -235,49 +322,6 @@ public class ManageStudentsActivity extends AppCompatActivity {
                         .show();
             });
         }
-
-        for (TextView chip : new TextView[]{chipAll, chip8a, chip8b, chip9a, chip9b, chip10a}) {
-            if (chip != null) {
-                chip.setOnClickListener(v -> selectChip(chip));
-            }
-        }
-    }
-
-    private void showDeleteConfirm(com.edu.track.models.Student student) {
-        new AlertDialog.Builder(this)
-                .setTitle("Delete Student")
-                .setMessage("Remove " + student.getName() + " from the system?")
-                .setPositiveButton("Delete", (d, w) -> {
-                    db.collection("students").document(student.getStudentId()).delete();
-                    Toast.makeText(this, "Student deleted", Toast.LENGTH_SHORT).show();
-                    // Real-time listener would handle this normally, but for now manual remove
-                    studentList.remove(student);
-                    adapter.notifyDataSetChanged();
-                })
-                .setNegativeButton("Cancel", null)
-                .show();
-    }
-
-    private void selectChip(TextView selected) {
-        if (currentChip == selected) return;
-        
-        // Reset all chips
-        for (TextView chip : new TextView[]{chipAll, chip8a, chip8b, chip9a, chip9b, chip10a}) {
-            if (chip != null) {
-                chip.setBackground(ContextCompat.getDrawable(this, R.drawable.bg_chip_unselected));
-                chip.setTextColor(ContextCompat.getColor(this, R.color.gray_body));
-                chip.setTypeface(null, android.graphics.Typeface.NORMAL);
-            }
-        }
-        // Highlight selected
-        selected.setBackground(ContextCompat.getDrawable(this, R.drawable.bg_chip_selected));
-        selected.setTextColor(ContextCompat.getColor(this, R.color.white));
-        selected.setTypeface(null, android.graphics.Typeface.BOLD);
-        
-        currentChip = selected;
-        isLastPage = false;
-        lastVisible = null;
-        fetchStudents(null); // Refresh with filter
     }
 
     private void setupSearch() {

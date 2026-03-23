@@ -25,6 +25,7 @@ import java.util.List;
 public class DetailedStudentReportActivity extends AppCompatActivity {
 
     private String studentId, studentName, standard, division;
+    private String startDate, endDate;
     private TextView tvName, tvDetail, tvPercentage, tvPresent, tvAbsent, tvAvatar;
     private LinearLayout containerLog;
     private FirebaseFirestore db;
@@ -38,9 +39,14 @@ public class DetailedStudentReportActivity extends AppCompatActivity {
         db = FirebaseSource.getInstance().getFirestore();
         
         studentId = getIntent().getStringExtra("student_id");
+        if (studentId == null) studentId = getIntent().getStringExtra("studentId");
         studentName = getIntent().getStringExtra("student_name");
+        if (studentName == null) studentName = getIntent().getStringExtra("studentName");
+        
         standard = getIntent().getStringExtra("standard");
         division = getIntent().getStringExtra("division");
+        startDate = getIntent().getStringExtra("startDate");
+        endDate = getIntent().getStringExtra("endDate");
 
         initViews();
         loadStudentReport();
@@ -76,7 +82,6 @@ public class DetailedStudentReportActivity extends AppCompatActivity {
         db.collection("attendance_records")
                 .whereEqualTo("standard", standard)
                 .whereEqualTo("division", division)
-                .orderBy("timestamp", Query.Direction.DESCENDING)
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     records.clear();
@@ -87,18 +92,29 @@ public class DetailedStudentReportActivity extends AppCompatActivity {
                         AttendanceRecord record = doc.toObject(AttendanceRecord.class);
                         if (record.getStatuses() != null && record.getStatuses().containsKey(studentId)) {
                             records.add(record);
-                            boolean isPresent = record.getStatuses().get(studentId);
-                            if (isPresent) present++;
-                            else absent++;
-                            
-                            addLogItem(record, isPresent);
                         }
+                    }
+
+                    // Sort locally by date descending to bypass Firestore composite index requirements
+                    records.sort((r1, r2) -> {
+                        String d1 = r1.getDate() != null ? r1.getDate() : "";
+                        String d2 = r2.getDate() != null ? r2.getDate() : "";
+                        return d2.compareTo(d1);
+                    });
+
+                    containerLog.removeAllViews();
+                    for (AttendanceRecord record : records) {
+                        boolean isPresent = record.getStatuses().get(studentId);
+                        if (isPresent) present++;
+                        else absent++;
+                        
+                        addLogItem(record, isPresent);
                     }
 
                     updateStats(present, absent);
                 })
                 .addOnFailureListener(e -> {
-                    Toast.makeText(this, "Failed to load report data", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Failed to load report data: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 });
     }
 
@@ -142,8 +158,26 @@ public class DetailedStudentReportActivity extends AppCompatActivity {
     }
 
     private void setupClickListeners() {
-        findViewById(R.id.btn_export_csv).setOnClickListener(v -> exportCsv());
-        findViewById(R.id.btn_export_pdf).setOnClickListener(v -> exportPdf());
+        android.widget.ImageView btnExport = findViewById(R.id.btn_export);
+        if (btnExport != null) {
+            btnExport.setOnClickListener(v -> showExportFormatDialog());
+        }
+    }
+
+    private void showExportFormatDialog() {
+        if (records.isEmpty()) {
+            Toast.makeText(this, "No data to export", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        String[] options = {"Download as CSV", "Download as PDF"};
+        new androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle("Select Export Format")
+                .setItems(options, (dialog, which) -> {
+                    if (which == 0) exportCsv();
+                    else exportPdf();
+                })
+                .show();
     }
 
     private void exportPdf() {
@@ -153,19 +187,22 @@ public class DetailedStudentReportActivity extends AppCompatActivity {
         }
 
         List<String[]> data = new ArrayList<>();
-        data.add(new String[]{"Date", "Status", "Details"}); // Header
+        data.add(new String[]{"Date", "Status", "Standard", "Section"}); // Header
         
         for (AttendanceRecord r : records) {
             boolean p = r.getStatuses().get(studentId);
             data.add(new String[]{
-                r.getDate(),
+                ReportManager.formatTwoLineDate(r.getDate()),
                 p ? "Present" : "Absent",
-                "Class " + standard + " " + division
+                standard != null ? standard : "N/A",
+                division != null ? division : "N/A"
             });
         }
 
         String fileName = studentName.replace(" ", "_") + "_Report";
-        String reportTitle = "Attendance Report: " + studentName;
+        String dRange = "";
+        if (startDate != null && endDate != null) dRange = " (" + startDate + " to " + endDate + ")";
+        String reportTitle = "Attendance Report: " + studentName + dRange;
         
         ReportManager.exportToPDF(this, reportTitle, fileName, "Admin/Students", data, new ReportManager.ExportCallback() {
             @Override
@@ -181,12 +218,18 @@ public class DetailedStudentReportActivity extends AppCompatActivity {
     }
 
     private void exportCsv() {
-        StringBuilder csv = new StringBuilder("Date,Status,Details\n");
+        String dRange = "";
+        if (startDate != null && endDate != null) dRange = "Report Date Range: " + startDate + " to " + endDate + "\n\n";
+        
+        StringBuilder csv = new StringBuilder();
+        if (!dRange.isEmpty()) csv.append(dRange);
+        csv.append("Date,Status,Standard,Section\n");
         for (AttendanceRecord r : records) {
             boolean p = r.getStatuses().get(studentId);
             csv.append(r.getDate()).append(",")
                .append(p ? "Present" : "Absent").append(",")
-               .append("Class ").append(standard).append(division).append("\n");
+               .append(standard != null ? standard : "N/A").append(",")
+               .append(division != null ? division : "N/A").append("\n");
         }
 
         String fileName = studentName.replace(" ", "_") + "_Report";

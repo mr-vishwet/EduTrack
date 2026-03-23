@@ -46,43 +46,6 @@ public class AdminDashboardActivity extends AppCompatActivity {
         if (savedInstanceState == null) {
             loadFragment(new AdminHomeFragment(), "HOME");
         }
-        // Added: dummy data population for announcements
-        populateDummyAnnouncements();
-    }
-
-    private void populateDummyAnnouncements() {
-        com.google.firebase.firestore.FirebaseFirestore db = com.edu.track.utils.FirebaseSource.getInstance().getFirestore();
-        db.collection("announcements").limit(1).get().addOnSuccessListener(snap -> {
-            if (snap.isEmpty()) {
-                com.google.firebase.firestore.WriteBatch batch = db.batch();
-                
-                java.util.Map<String, Object> a1 = new java.util.HashMap<>();
-                a1.put("title", "Annual Sports Day 2026");
-                a1.put("content", "Dear Parents and Students, the Annual Sports Day will be held next Friday. Please come in your sports uniform.");
-                a1.put("audience", "All");
-                a1.put("timestamp", new java.util.Date(System.currentTimeMillis() + 86400000L * 7));
-                a1.put("author", "Admin");
-                batch.set(db.collection("announcements").document("ANN_1"), a1);
-
-                java.util.Map<String, Object> a2 = new java.util.HashMap<>();
-                a2.put("title", "Half-Yearly Examination Schedule");
-                a2.put("content", "The half-yearly examinations are scheduled to begin from the 15th of next month. Timetable will be shared shortly.");
-                a2.put("audience", "Students & Parents");
-                a2.put("timestamp", new java.util.Date(System.currentTimeMillis() - 86400000L * 2));
-                a2.put("author", "Admin");
-                batch.set(db.collection("announcements").document("ANN_2"), a2);
-
-                java.util.Map<String, Object> a3 = new java.util.HashMap<>();
-                a3.put("title", "Staff Meeting Notice");
-                a3.put("content", "There will be a mandatory staff meeting this Saturday at 10:00 AM in the main auditorium.");
-                a3.put("audience", "Teachers Only");
-                a3.put("timestamp", new java.util.Date(System.currentTimeMillis() - 86400000L * 5));
-                a3.put("author", "Admin");
-                batch.set(db.collection("announcements").document("ANN_3"), a3);
-
-                batch.commit();
-            }
-        });
     }
 
     private void setupBottomNavigation() {

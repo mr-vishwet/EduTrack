@@ -159,7 +159,7 @@ public class TeacherPerformanceExportActivity extends AppCompatActivity {
                 .get()
                 .addOnSuccessListener(snap -> {
                     exportDataList.clear();
-                    exportDataList.add(new String[]{"Date", "Class", "Total Present", "Total Absent", "Total Students"});
+                    exportDataList.add(new String[]{"Date", "Standard", "Section", "Total Present", "Total Absent", "Total Students"});
 
                     int validSessions = 0;
 
@@ -182,7 +182,9 @@ public class TeacherPerformanceExportActivity extends AppCompatActivity {
                             int total = rec.getTotalCount();
                             int absent = total - present;
                             exportDataList.add(new String[]{
-                                    rec.getDate(), "Std " + rec.getStandard() + rec.getDivision(),
+                                    ReportManager.formatTwoLineDate(rec.getDate()), 
+                                    rec.getStandard() != null ? rec.getStandard() : "N/A",
+                                    rec.getDivision() != null ? rec.getDivision() : "N/A",
                                     String.valueOf(present), String.valueOf(absent), String.valueOf(total)
                             });
                         }
@@ -241,7 +243,8 @@ public class TeacherPerformanceExportActivity extends AppCompatActivity {
             Toast.makeText(this, "No data to export", Toast.LENGTH_SHORT).show();
             return;
         }
-        ReportManager.exportToPDF(this, teacherName + " - Session Report", teacherName.replaceAll("\\s+", "_") + "_Performance",
+        String dRange = " (" + displayFmt.format(fromCal.getTime()) + " to " + displayFmt.format(toCal.getTime()) + ")";
+        ReportManager.exportToPDF(this, teacherName + " - Session Report" + dRange, teacherName.replaceAll("\\s+", "_") + "_Performance",
                 "Admin/Performance", exportDataList,
                 new ReportManager.ExportCallback() {
                     @Override public void onSuccess(String fp) { ReportManager.showExportSuccessDialog(TeacherPerformanceExportActivity.this, fp); }

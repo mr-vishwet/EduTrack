@@ -114,7 +114,56 @@ public class ReportFiltersActivity extends AppCompatActivity {
         if (btnExportCsv != null) btnExportCsv.setOnClickListener(v -> exportReport(false));
 
         View btnExportPdf = findViewById(R.id.btn_export_pdf);
-        if (btnExportPdf != null) btnExportPdf.setOnClickListener(v -> exportReport(true));
+        if (btnExportPdf != null) btnExportPdf.setOnClickListener(v -> showPdfPreviewDialog());
+    }
+
+    private void showPdfPreviewDialog() {
+        if (exportData.size() <= 1) {
+            Toast.makeText(this, "Apply filters first to load data", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_pdf_preview, null);
+        androidx.appcompat.app.AlertDialog dialog = new androidx.appcompat.app.AlertDialog.Builder(this)
+                .setView(dialogView)
+                .create();
+
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+        }
+
+        dialogView.findViewById(R.id.btn_close_dialog).setOnClickListener(v -> dialog.dismiss());
+        dialogView.findViewById(R.id.btn_cancel_dialog).setOnClickListener(v -> dialog.dismiss());
+        
+        dialogView.findViewById(R.id.btn_download_pdf).setOnClickListener(v -> {
+            boolean openAfter = ((com.google.android.material.switchmaterial.SwitchMaterial) 
+                    dialogView.findViewById(R.id.switch_open_after)).isChecked();
+            dialog.dismiss();
+            exportReportSync(true, openAfter);
+        });
+
+        dialog.show();
+    }
+
+    private void exportReportSync(boolean isPdf, boolean openAfter) {
+        String fromStr = etFromDate.getText().toString().trim();
+        String toStr   = etToDate.getText().toString().trim();
+        String dRange = " (" + fromStr + " to " + toStr + ")";
+
+        String fileName = "ClassWise_Report_" + System.currentTimeMillis();
+        if (isPdf) {
+            ReportManager.exportToPDF(this, "Class-wise Attendance" + dRange, fileName, "Admin/ClassWise", exportData,
+                    new ReportManager.ExportCallback() {
+                        @Override public void onSuccess(String fp) { 
+                            if (openAfter) {
+                                ReportManager.showExportSuccessDialog(ReportFiltersActivity.this, fp); 
+                            } else {
+                                Toast.makeText(ReportFiltersActivity.this, "PDF saved: " + fp, Toast.LENGTH_LONG).show();
+                            }
+                        }
+                        @Override public void onFailure(Exception e) { Toast.makeText(ReportFiltersActivity.this, "PDF Export failed: " + e.getMessage(), Toast.LENGTH_SHORT).show(); }
+                    });
+        }
     }
 
     private void applyFilters() {
@@ -168,7 +217,7 @@ public class ReportFiltersActivity extends AppCompatActivity {
         query.get().addOnSuccessListener(snap -> {
             resultItems.clear();
             exportData.clear();
-            exportData.add(new String[]{"Date", "Class", "Section", "Present", "Total", "%"});
+            exportData.add(new String[]{"Date", "Standard", "Section", "Present", "Total", "%"});
 
             // Group by class → date to aggregate per-class per-day
             Map<String, Map<String, int[]>> classDateMap = new HashMap<>();
@@ -203,8 +252,20 @@ public class ReportFiltersActivity extends AppCompatActivity {
                 String recordsStr = e.getValue().size() + " days";
 
                 resultItems.add(new ReportItem(cls, pctStr, recordsStr));
+                
+                // Extract Standard and Section for export from "Std 7 - B"
+                String stdStr = "N/A", divStr = "N/A";
+                if (cls.contains("Std ") && cls.contains(" - ")) {
+                    String clean = cls.replace("Std ", "");
+                    String[] parts = clean.split(" - ");
+                    if (parts.length == 2) {
+                        stdStr = parts[0].trim();
+                        divStr = parts[1].trim();
+                    }
+                }
+
                 exportData.add(new String[]{
-                        fromDb + " to " + toDb, cls, "", String.valueOf(totalPresent),
+                        fromDb + "\nto " + toDb, stdStr, divStr, String.valueOf(totalPresent),
                         String.valueOf(totalStudents), pctStr
                 });
             }
@@ -229,19 +290,24 @@ public class ReportFiltersActivity extends AppCompatActivity {
     }
 
     private void exportReport(boolean isPdf) {
+        String fromStr = etFromDate.getText().toString().trim();
+        String toStr   = etToDate.getText().toString().trim();
+        String dRange = " (" + fromStr + " to " + toStr + ")";
+
         if (exportData.size() <= 1) {
             Toast.makeText(this, "Apply filters first to load data", Toast.LENGTH_SHORT).show();
             return;
         }
         String fileName = "ClassWise_Report_" + System.currentTimeMillis();
         if (isPdf) {
-            ReportManager.exportToPDF(this, "Class-wise Attendance", fileName, "Admin/ClassWise", exportData,
+            ReportManager.exportToPDF(this, "Class-wise Attendance" + dRange, fileName, "Admin/ClassWise", exportData,
                     new ReportManager.ExportCallback() {
                         @Override public void onSuccess(String fp) { ReportManager.showExportSuccessDialog(ReportFiltersActivity.this, fp); }
                         @Override public void onFailure(Exception e) { Toast.makeText(ReportFiltersActivity.this, "PDF Export failed: " + e.getMessage(), Toast.LENGTH_SHORT).show(); }
                     });
         } else {
             StringBuilder csv = new StringBuilder();
+            csv.append("Report Date Range: ").append(fromStr).append(" to ").append(toStr).append("\n\n");
             for (String[] row : exportData) csv.append(String.join(",", row)).append("\n");
             ReportManager.exportToCSV(this, fileName, "Admin/ClassWise", csv.toString(),
                     new ReportManager.ExportCallback() {
