@@ -12,16 +12,36 @@ TEACHER PORTAL
 ------------------------------------------
 Role: Teacher
 Login URL: Choose 'Teacher' on Role Selection
+Password: password123 (For all accounts)
 (Total 30 teachers available)
 
-Sample 3 (Subject Specialist):
-Email: ashwini.patil@edutrack.com
-Password: password123
+CLASS TEACHERS (Example):
+1. Teacher: Ashwini Patil Mam (Class 1A)
+   Email: ashwini.patil@edutrack.com
+   Password: password123
+
+2. Teacher: Anil Deshmukh sir (English)
+   Email: anil.deshmukh@edutrack.com
+   Password: password123
+
+SUBJECT TEACHERS (Example Specialists):
+
+
+1. Teacher: Manoj Tiwari Sir (Science)
+   Email: manoj.tiwari@edutrack.com
+   Password: password123
+
+
+1. Teacher: Pooja Reddy Mam (Science)
+   Email: pooja.reddy@edutrack.com
+   Password: password123
+
 
 PARENT / STUDENT PORTAL
 ------------------------------------------
 Role: Parent
 Login URL: Choose 'Parent' on Role Selection
+Password: password123 (For all accounts)
 
 Pattern: ROLL_NO_{Number}_{ClassID}
 Example 1 (8th A):
